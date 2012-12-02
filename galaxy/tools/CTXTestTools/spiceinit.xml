@@ -13,7 +13,7 @@
 
 	<outputs>
     		<data format="cub" name="from" label="to="/>
-	</outpus>
+	</outputs>
 
 	<help>
 		Remember to specify where you get your update kernels (web or local)
