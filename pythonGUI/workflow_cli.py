@@ -1,3 +1,5 @@
+import os
+
 from tool_info import *
 from workflow import *
 
@@ -16,15 +18,18 @@ def get_tool_infos():
     #load in test tools
     tool_a_input = ToolArgInfo("input", "", "", ".txt")
     tool_a_output = ToolArgInfo("output", "", "", ".txt")
-    tool_a = ToolInfo("python", "testTools\\a.py", tool_a_input, tool_a_output)
+    tool_a = ToolInfo("python", "testTools%sa.py" % os.sep, tool_a_input,
+            tool_a_output)
 
     tool_b_input = ToolArgInfo("input", "", "", ".txt")
     tool_b_output = ToolArgInfo("output", "", "", ".txt")
-    tool_b = ToolInfo("python", "testTools\\b.py", tool_b_input, tool_b_output)
+    tool_b = ToolInfo("python", "testTools%sb.py" % os.sep, tool_b_input,
+            tool_b_output)
 
     tool_c_input = ToolArgInfo("input", "", "", ".txt")
     tool_c_output = ToolArgInfo("output", "", "", ".txt")
-    tool_c = ToolInfo("python", "testTools\\c.py", tool_c_input, tool_c_output)
+    tool_c = ToolInfo("python", "testTools%sc.py" % os.sep, tool_c_input,
+            tool_c_output)
 
     #isis tools
     mro2isis_input = ToolArgInfo("from", "from=", "", ".IMG")
