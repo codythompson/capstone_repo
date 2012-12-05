@@ -33,7 +33,7 @@ def get_tool_infos():
 
     #isis tools
     mro2isis_input = ToolArgInfo("from", "from=", "", ".IMG")
-    mro2isis_output = ToolArgInfo("to", "to=", "", ".IMG")
+    mro2isis_output = ToolArgInfo("to", "to=", "", ".cub")
     mro2isis = ToolInfo("", "mroctx2isis", mro2isis_input, mro2isis_output)
 
     return [tool_a, tool_b, tool_c, mro2isis]
