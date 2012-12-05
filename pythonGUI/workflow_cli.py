@@ -5,21 +5,34 @@ def print_about():
     print "Team Fortnightly Workflow Tool Command Line Interface"
     print "-----------------------------------------------------"
 
+def print_step_tuples(step_tuples):
+    print step_tuples[0]
+    if len(step_tuples) > 1 and step_tuples[1]:
+        print_step_tuples(step_tuples[1])
+
 def get_tool_infos():
     #TODO make this NOT hard coded
-    tool_a_input = ToolArgInfo("input", "", "")
-    tool_a_output = ToolArgInfo("output", "", "")
+
+    #load in test tools
+    tool_a_input = ToolArgInfo("input", "", "", ".txt")
+    tool_a_output = ToolArgInfo("output", "", "", ".txt")
     tool_a = ToolInfo("python", "testTools\\a.py", tool_a_input, tool_a_output)
 
-    tool_b_input = ToolArgInfo("input", "", "")
-    tool_b_output = ToolArgInfo("output", "", "")
+    tool_b_input = ToolArgInfo("input", "", "", ".txt")
+    tool_b_output = ToolArgInfo("output", "", "", ".txt")
     tool_b = ToolInfo("python", "testTools\\b.py", tool_b_input, tool_b_output)
 
-    tool_c_input = ToolArgInfo("input", "", "")
-    tool_c_output = ToolArgInfo("output", "", "")
+    tool_c_input = ToolArgInfo("input", "", "", ".txt")
+    tool_c_output = ToolArgInfo("output", "", "", ".txt")
     tool_c = ToolInfo("python", "testTools\\c.py", tool_c_input, tool_c_output)
 
-    return [tool_a, tool_b, tool_c]
+    #isis tools
+    mro2isis_input = ToolArgInfo("from", "from=", "", ".IMG")
+    mro2isis_output = ToolArgInfo("to", "to=", "", ".IMG")
+    mro2isis = ToolInfo("", "mroctx2isis", mro2isis_input, mro2isis_output)
+
+    return [tool_a, tool_b, tool_c, mro2isis]
+#    return [tool_a, tool_b, tool_c]
 
 def prompt_tool_select():
     tool_index = int(raw_input(">"))
@@ -45,7 +58,9 @@ selected_tools = []
 loop = True
 while loop:
     selected = prompt_tool_select()
-    selected_tools.append(tool_infos[selected[0]])
+    new_tool = tool_infos[selected[0]]
+    selected_tools.append(new_tool)
+    print "\nYou have added '%s' to the workflow\n" % new_tool.command 
     loop = selected[1]
 
 print "\nnow select the input file name."
@@ -56,4 +71,5 @@ step_tuples = build_step_tuples(selected_tools, input_fname)
 print "running workflow"
 print "----------------"
 
+#print_step_tuples(step_tuples)
 run_workflow(step_tuples)
