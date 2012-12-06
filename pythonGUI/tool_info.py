@@ -31,10 +31,21 @@ class ToolInfo:
         args.append(self.command)
         args.append(self.input_arg_info.get_arg_string(input_filename,
             add_extension_to_input))
-        args.append(self.output_arg_info.get_arg_string(output_filename,
-            add_extension_to_output))
+
+        if self.output_arg_info:
+            args.append(self.output_arg_info.get_arg_string(output_filename,
+                add_extension_to_output))
 
         return args
+
+    def get_output_filename(self, input_filename, output_filename, 
+            add_extension_to_input=False, add_extension_to_output=True):
+        if self.output_arg_info:
+            return self.output_arg_info.get_arg_string(output_filename,
+                    add_extension_to_output)
+        else:
+            return self.input_arg_info.get_arg_string(input_filename,
+                    add_extension_to_input)
 
 #TODO: change this to handle more command line arg configurations than just
 # one input and one output

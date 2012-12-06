@@ -31,18 +31,22 @@ def get_tool_infos():
     tool_c = ToolInfo("python", "testTools%sc.py" % os.sep, tool_c_input,
             tool_c_output)
 
+    tool_d_input = ToolArgInfo("input", "", "", "txt")
+    tool_d = ToolInfo("python", "testTools%sd.py" % os.sep, tool_c_input, None)
+
     #isis tools
     mro2isis_input = ToolArgInfo("from", "from=", "", ".IMG")
     mro2isis_output = ToolArgInfo("to", "to=", "", ".cub")
     mro2isis = ToolInfo("", "mroctx2isis", mro2isis_input, mro2isis_output)
 
-    return [tool_a, tool_b, tool_c, mro2isis]
+#    return [tool_a, tool_b, tool_c, mro2isis]
 #    return [tool_a, tool_b, tool_c]
+    return [tool_a, tool_b, tool_c, tool_d]
 
 def prompt_tool_select():
     tool_index = int(raw_input(">"))
-    print "To add a tool to process the output from the last added tool enter", 
-    print " 'a'."
+    print "\nTo add a tool to process the output from the last added tool",
+    print "enter 'a'."
     print "To stop adding tools to the workflow press 's'."
     loop_char = raw_input(">")
     return (tool_index, loop_char == 'a')
@@ -71,10 +75,9 @@ while loop:
 print "\nnow select the input file name."
 input_fname = raw_input(">")
 
-step_tuples = build_step_tuples(selected_tools, input_fname)
+start_tool = build_workflow(selected_tools)
 
 print "running workflow"
 print "----------------"
 
-#print_step_tuples(step_tuples)
-run_workflow(step_tuples)
+start_tool.run(input_fname, "out_put_")
