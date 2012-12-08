@@ -3,15 +3,11 @@
   	<command>mroctx2isis from=$input to=$output</command>
 
   	<inputs>
-    		<param format="txt" name="input" type="data" label="from="/>
-  	</inputs>
-
-  	<inputs>
-    		<param format="IMG" name="input" type="data" label="from="/>
+    		<param format="img" name="input" type="data" label="from="/>
   	</inputs>
 
   	<outputs>
-    		<data format="cub" name="output" label="to="/>
+    		<data format="cub" name="output" label="to" />
   	</outputs>
   	
 	<help>
