@@ -1,3 +1,5 @@
+# THIS ONLY WORKS IN WINDOWS
+
 from subprocess import Popen
 from sys import path
 

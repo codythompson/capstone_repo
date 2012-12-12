@@ -39,9 +39,12 @@ def get_tool_infos():
     mro2isis_output = ToolArgInfo("to", "to=", "", ".cub")
     mro2isis = ToolInfo("", "mroctx2isis", mro2isis_input, mro2isis_output)
 
-#    return [tool_a, tool_b, tool_c, mro2isis]
+    spice_init_input = ToolArgInfo("from", "from=", "", ".cub")
+    spice_init = ToolInfo("", "spiceinit", spice_init_input, None)
+
+    return [tool_a, tool_b, tool_c, tool_d, mro2isis, spice_init]
 #    return [tool_a, tool_b, tool_c]
-    return [tool_a, tool_b, tool_c, tool_d]
+#    return [tool_a, tool_b, tool_c, tool_d]
 
 def prompt_tool_select():
     tool_index = int(raw_input(">"))
