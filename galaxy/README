@@ -1,0 +1,18 @@
+Add universe_wsgi.ini to your main galaxy folder:
+This allows you to link a file into your workflows without uploading via a working directory labelled "Isis" in galaxy/database/files/  
+This has been loaded into the database folder and has an ISIS image, cub, and map.
+
+In universe_wsgi.ini, add your user email to "admin_users" section to access the admin tab.
+
+Within galaxy, you can now link files to workflows in the following manner:
+
+Click on the admin tab.
+Click "manage data libraries" in the sidebar
+Click "Create new data library" and name it ISIS
+Click "Add datasets"
+Select "upload directory of files" and the ISIS directory will pop up
+Add all files to directory 
+Specify datatypes for files
+Check all the boxes by the files and select Import files to current history
+
+
