@@ -41,11 +41,15 @@ class ToolArgInfo:
     # add_extension - A boolean. If true will append the file extension given to
     #                   to the contructor to the end of the arg_value
     #                   defaults to True
-    def get_arg_string(self, arg_value, add_extension=True):
-        arg_string = self.prefix + arg_value
+    def get_arg_string(self, arg_value, add_extension=True, add_prefix=True, add_postfix=True):
+        arg_string = ""
+        if add_prefix:
+            arg_string = self.prefix
+        arg_string = arg_string + arg_value
         if add_extension:
             arg_string = arg_string + self.file_extension
-        arg_string = arg_string + self.postfix
+        if add_postfix:
+            arg_string = arg_string + self.postfix
         return arg_string
 
 ################################################################################
@@ -76,6 +80,11 @@ class ToolInfo:
         self.command = command
         self.input_arg_info = input_arg_info
         self.output_arg_info = output_arg_info
+        # temp fix for use with spiceinit - just checks if an instance var
+        # called other_args exists. If so it appends what is hopefully a list
+        # to the end of args.
+        # TODO: Perhaps there's a more elegant way to do this.
+        self.other_args = []
 
     # Returns an array of strings that can be given to subprocess.popen or
     # something similar that will execute the program.
@@ -105,6 +114,13 @@ class ToolInfo:
             args.append(self.output_arg_info.get_arg_string(output_filename,
                 add_extension_to_output))
 
+        # temp fix for use with spiceinit - just checks if an instance var
+        # called other_args exists. If so it appends what is hopefully a list
+        # to the end of args.
+        # TODO: Perhaps there's a more elegant way to do this.
+        if self.other_args:
+            args.extend(self.other_args)
+
         return args
 
     # Returns the name of the output file that will be produced by this tool.
@@ -115,7 +131,7 @@ class ToolInfo:
             add_extension_to_input=False, add_extension_to_output=True):
         if self.output_arg_info:
             return self.output_arg_info.get_arg_string(output_filename,
-                    add_extension_to_output)
+                    add_extension_to_output, False, False)
         else:
             return self.input_arg_info.get_arg_string(input_filename,
-                    add_extension_to_input)
+                    add_extension_to_input, False, False)

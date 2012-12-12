@@ -41,6 +41,7 @@ def get_tool_infos():
 
     spice_init_input = ToolArgInfo("from", "from=", "", ".cub")
     spice_init = ToolInfo("", "spiceinit", spice_init_input, None)
+    spice_init.other_args.append("web=yes")
 
     return [tool_a, tool_b, tool_c, tool_d, mro2isis, spice_init]
 #    return [tool_a, tool_b, tool_c]

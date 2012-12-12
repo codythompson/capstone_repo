@@ -59,6 +59,9 @@ class WorkflowTool:
             add_extension_to_output = True):
         args = self.tool_info.build_args(input_fname, output_base_name,
                 add_extension_to_input, add_extension_to_output)
+        #for testing - remove later
+        print args
+        #
         p = subprocess.Popen(args, stdout=subprocess.PIPE)
         self.output_handler(p)
         p.communicate()
