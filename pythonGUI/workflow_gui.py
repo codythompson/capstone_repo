@@ -1,6 +1,8 @@
+import os
 from Tkinter import *
 
 from load_tools import get_tool_infos
+from workflow import *
 
 # TODO: Replace the "obj" strings with ToolInfo instances
 # TODO: return actual tools
@@ -57,6 +59,12 @@ class ToolBox:
             self.listbox.delete(index)
             self.tool_tuples.pop(index)
 
+    def get_all_tool_info(self):
+        tool_infos = []
+        for tool in self.tool_tuples:
+            tool_infos.append(tool[1])
+        return tool_infos
+
     def pack(self, **options):
         self.frame.pack(options)
 
@@ -68,9 +76,10 @@ class ToolBox:
         return string
 
 class RunBox:
-    def __init__(self, parent):
+    def __init__(self, parent, get_tool_info_function):
         self.frame = Frame(parent)
-        self.runbutton = Button(self.frame, text="Run Workflow")
+        self.runbutton = Button(self.frame, text="Run Workflow",
+                command=self.run)
         self.runbutton.pack(side=LEFT)
 
         outputframe = Frame(self.frame)
@@ -80,6 +89,18 @@ class RunBox:
         self.outputbox.pack(fill=X)
         outputframe.pack(side=LEFT, fill=X)
 
+        self.get_tool_info_function = get_tool_info_function
+
+    def run(self):
+        tool_infos = self.get_tool_info_function()
+        start_tool = build_workflow(tool_infos)
+        #TODO get input filename from user
+        start_tool.run("testTools%stestData%sorig.text" % (os.sep, os.sep), 
+                "gui_out")
+
+    def add_line(self, line):
+        self.outputbox.insert(END, line)
+
     def pack(self, **options):
         self.frame.pack(options)
 
@@ -87,7 +108,9 @@ class RunBox:
 def add_tool(target_tool_box, tool_tuple):
     target_tool_box.insert_tool(tool_tuple)
 
-# instantiate the GUI
+################################################################################
+# builds the GUI
+################################################################################
 root = Tk()
 root.title("ISIS Workflow GUI")
 
@@ -122,7 +145,10 @@ rightboxframe.pack(side=LEFT)
 toolframe.pack()
 
 #runbox
-runbox = RunBox(root)
+def test_func(runbox_instance):
+    runbox_instance.add_line("Testing ----------- Testing")
+
+runbox = RunBox(root, toolboxR.get_all_tool_info)
 runbox.pack(side=LEFT)
 
 mainloop()
