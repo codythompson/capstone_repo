@@ -17,7 +17,13 @@ def load_available_tools():
 # Manages a tkinter listbox that displays tools
 class ToolBox:
     def __init__(self, parent, tool_tuples = None):
-        self.listbox = Listbox(parent)
+        self.frame = Frame(parent)
+        self.scrollbar = Scrollbar(self.frame, orient=VERTICAL)
+        self.listbox = Listbox(self.frame, yscrollcommand=self.scrollbar.set)
+        self.scrollbar.config(command=self.listbox.yview)
+        self.scrollbar.pack(side=RIGHT, fill=Y)
+        self.listbox.pack(side=LEFT, fill=BOTH, expand=1)
+
         self.tool_tuples = []
         if tool_tuples:
             self.insert_tools(tool_tuples)
@@ -52,7 +58,7 @@ class ToolBox:
             self.tool_tuples.pop(index)
 
     def pack(self, **options):
-        self.listbox.pack(options)
+        self.frame.pack(options)
 
     def __str__(self):
         string = "---- ToolBox instance ----\n"
@@ -73,7 +79,7 @@ leftboxframe = Frame(root)
 lLabel = Label(leftboxframe, text="Available Tools")
 lLabel.pack()
 toolboxL = ToolBox(leftboxframe, load_available_tools())
-toolboxL.pack()
+toolboxL.pack(side=LEFT)
 leftboxframe.pack(side=LEFT)
 
 buttonframe = Frame(root)
