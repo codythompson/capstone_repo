@@ -31,6 +31,7 @@ def get_tool_infos():
 
     spice_init_input = ToolArgInfo("from", "from=", "", ".cub")
     spice_init = ToolInfo("", "spiceinit", spice_init_input, None)
+    #TODO make this set by user input
     spice_init.other_args.append("web=yes")
 
     ctxcal_input = ToolArgInfo("from", "from=", "", ".cub")
@@ -41,5 +42,16 @@ def get_tool_infos():
     ctxevenodd_output = ToolArgInfo("to", "to=", "", ".lev1eo.cub")
     ctxevenodd = ToolInfo("", "ctxevenodd", ctxevenodd_input, ctxevenodd_output)
 
+    cam2map_input = ToolArgInfo("from", "from=", "", ".lev1eo.cub")
+    cam2map_output = ToolArgInfo("to", "to=", "", ".lev2.cub")
+    cam2map = ToolInfo("", "cam2map", cam2map_input, cam2map_output)
+    #TODO make this set by user input
+    cam2map.other_args.append("map=testTools/testData/simp0.map")
+
+    isis2std_input = ToolArgInfo("from", "from=", "", ".lev2.cub")
+    isis2std_output = ToolArgInfo("from", "to=", "", ".jp2")
+    isis2std = ToolInfo("", "isis2std", isis2std_input, isis2std_output)
+    isis2std.other_args.append("format=jp2")
+
     return [tool_a, tool_b, tool_c, tool_d, mro2isis, spice_init, ctxcal,
-            ctxevenodd]
+            ctxevenodd, cam2map, isis2std]
