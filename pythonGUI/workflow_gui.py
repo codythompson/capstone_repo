@@ -1,11 +1,18 @@
 from Tkinter import *
 
+from load_tools import get_tool_infos
+
 # TODO: Replace the "obj" strings with ToolInfo instances
 # TODO: return actual tools
 # TODO: Eventually instantiate the ToolInfo objects with data from file.
 def load_available_tools():
-    return [("tool A", "obj"), ("tool B", "obj"), ("tool C", "obj"),
-            ("tool D", "obj"), ("tool F", "obj")]
+#    return [("tool A", "obj"), ("tool B", "obj"), ("tool C", "obj"),
+#            ("tool D", "obj"), ("tool F", "obj")]
+    tool_infos = get_tool_infos()
+    tool_tuples = []
+    for tool in tool_infos:
+        tool_tuples.append((tool.command, tool))
+    return tool_tuples
 
 # Manages a tkinter listbox that displays tools
 class ToolBox:
@@ -58,6 +65,7 @@ class ToolBox:
 def add_tool(target_tool_box, tool_tuple):
     target_tool_box.insert_tool(tool_tuple)
 
+# instantiate the GUI
 root = Tk()
 root.title("ISIS Workflow GUI")
 
