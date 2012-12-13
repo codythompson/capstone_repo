@@ -1,9 +1,13 @@
 from Tkinter import *
 
+# TODO: Replace the "obj" strings with ToolInfo instances
+# TODO: return actual tools
+# TODO: Eventually instantiate the ToolInfo objects with data from file.
 def load_available_tools():
     return [("tool A", "obj"), ("tool B", "obj"), ("tool C", "obj"),
             ("tool D", "obj"), ("tool F", "obj")]
 
+# Manages a tkinter listbox that displays tools
 class ToolBox:
     def __init__(self, parent, tool_tuples = None):
         self.listbox = Listbox(parent)
@@ -50,6 +54,7 @@ class ToolBox:
         string = string + "--------------------------"
         return string
 
+# Adds a tool to the workflow ToolBox
 def add_tool(target_tool_box, tool_tuple):
     target_tool_box.insert_tool(tool_tuple)
 
