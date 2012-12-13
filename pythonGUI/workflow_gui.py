@@ -1,5 +1,5 @@
 import os
-import thread
+import threading
 from Tkinter import *
 
 from load_tools import get_tool_infos
@@ -71,6 +71,22 @@ class ToolBox:
         string = string + "--------------------------"
         return string
 
+class RunThread(threading.Thread):
+    def __init__(self, start_tool, input_file_path, output_base_name,
+            callback_function):
+        self.start_tool = start_tool
+        self.input_file_path = input_file_path
+        self.output_base_name = output_base_name
+        threading.Thread.__init__(self)
+    
+    def run(self):
+        self.start_tool.run(self.input_file_path,
+            self.output_base_name)
+
+    def stop(self):
+        self.join()
+        callback_function()
+
 class RunBoxOutputHandler:
     def __init__(self, add_line_method):
         self.add_line_method = add_line_method
@@ -106,6 +122,8 @@ class RunBox:
         self.use_threading = Checkbutton(self.frame, text="Run on a new thread",
                 variable=self.use_threading_checked)
         self.use_threading.pack(side=RIGHT)
+        if os.sep != '\\':
+            self.use_threading.config(state=DISABLED)
 
         self.get_tool_info_function = get_tool_info_function
 
@@ -124,8 +142,9 @@ class RunBox:
 
         if self.use_threading_checked.get() == 1:
             self.lock_run_button()
-            thread.start_new_thread(start_tool.run,
-                    (input_file_path, "gui_out", ))
+            thread = RunThread(start_tool, input_file_path, "gui_out",
+                self.unlock_run_button)
+            thread.start()
         else:
             start_tool.run(input_file_path, "gui_out")
 
