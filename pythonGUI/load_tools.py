@@ -33,4 +33,13 @@ def get_tool_infos():
     spice_init = ToolInfo("", "spiceinit", spice_init_input, None)
     spice_init.other_args.append("web=yes")
 
-    return [tool_a, tool_b, tool_c, tool_d, mro2isis, spice_init]
+    ctxcal_input = ToolArgInfo("from", "from=", "", ".cub")
+    ctxcal_output = ToolArgInfo("to", "to=", "", ".lev1.cub")
+    ctxcal = ToolInfo("", "ctxcal", ctxcal_input, ctxcal_output)
+
+    ctxevenodd_input = ToolArgInfo("from", "from=", "", ".lev1.cub")
+    ctxevenodd_output = ToolArgInfo("to", "to=", "", ".lev1eo.cub")
+    ctxevenodd = ToolInfo("", "ctxevenodd", ctxevenodd_input, ctxevenodd_output)
+
+    return [tool_a, tool_b, tool_c, tool_d, mro2isis, spice_init, ctxcal,
+            ctxevenodd]
