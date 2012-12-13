@@ -78,9 +78,16 @@ class ToolBox:
 class RunBox:
     def __init__(self, parent, get_tool_info_function):
         self.frame = Frame(parent)
-        self.runbutton = Button(self.frame, text="Run Workflow",
+
+        leftframe = Frame(self.frame)
+        self.runbutton = Button(leftframe, text="Run Workflow",
                 command=self.run)
-        self.runbutton.pack(side=LEFT)
+        self.runbutton.pack()
+        self.input_entry_label = Label(leftframe, text="Input File Path:")
+        self.input_entry_label.pack()
+        self.input_entry = Entry(leftframe)
+        self.input_entry.pack()
+        leftframe.pack(side=LEFT)
 
         outputframe = Frame(self.frame)
         self.outputbox_label = Label(outputframe, text="Output")
@@ -94,9 +101,8 @@ class RunBox:
     def run(self):
         tool_infos = self.get_tool_info_function()
         start_tool = build_workflow(tool_infos)
-        #TODO get input filename from user
-        start_tool.run("testTools%stestData%sorig.text" % (os.sep, os.sep), 
-                "gui_out")
+        input_file_path = self.input_entry.get()
+        start_tool.run(input_file_path, "gui_out")
 
     def add_line(self, line):
         self.outputbox.insert(END, line)
