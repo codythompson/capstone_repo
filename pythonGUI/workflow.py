@@ -87,12 +87,13 @@ class WorkflowTool:
 # params:
 # tool_infos - An array of ToolInfo objects that represents a workflow.
 ################################################################################
-def build_workflow(tool_infos):
+def build_workflow(tool_infos, workflow_output_handler = 
+        default_workflow_output_handler):
     tools = []
 
     #create WorkflowTool objects
     for tool_info in tool_infos:
-        tools.append(WorkflowTool(tool_info))
+        tools.append(WorkflowTool(tool_info, workflow_output_handler))
 
     #set each tools call_when_finsished method to
     #be the next tools run method 

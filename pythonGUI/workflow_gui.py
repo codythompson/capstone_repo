@@ -75,37 +75,55 @@ class ToolBox:
         string = string + "--------------------------"
         return string
 
+class RunBoxOutputHandler:
+    def __init__(self, add_line_method):
+        self.add_line_method = add_line_method
+
+    def handle_output(self, process):
+        while True:
+            next_line = process.stdout.readline()
+            if not next_line:
+                break
+            print "\r" + next_line
+            self.add_line_method(next_line)
+
 class RunBox:
     def __init__(self, parent, get_tool_info_function):
         self.frame = Frame(parent)
 
-        leftframe = Frame(self.frame)
-        self.runbutton = Button(leftframe, text="Run Workflow",
-                command=self.run)
-        self.runbutton.pack()
-        self.input_entry_label = Label(leftframe, text="Input File Path:")
-        self.input_entry_label.pack()
-        self.input_entry = Entry(leftframe)
-        self.input_entry.pack()
-        leftframe.pack(side=LEFT)
+        self.input_entry_label = Label(self.frame, text="Input File Path:")
+        self.input_entry_label.pack(fill=X)
+        self.input_entry = Entry(self.frame)
+        self.input_entry.pack(fill=X)
 
-        outputframe = Frame(self.frame)
-        self.outputbox_label = Label(outputframe, text="Output")
-        self.outputbox_label.pack()
-        self.outputbox = Listbox(outputframe)
+        self.outputbox_label = Label(self.frame, text="Output")
+        self.outputbox_label.pack(fill=X)
+        self.outputbox = Listbox(self.frame)
         self.outputbox.pack(fill=X)
-        outputframe.pack(side=LEFT, fill=X)
+
+        buttonframe = Frame(self.frame)
+        self.runbutton = Button(buttonframe, text="Run Workflow",
+                command=self.run)
+        self.clearbutton = Button(buttonframe, text="Clear Output",
+                command=self.clear)
+        self.runbutton.pack(side=RIGHT)
+        self.clearbutton.pack(side=LEFT)
+        buttonframe.pack(fill=X)
 
         self.get_tool_info_function = get_tool_info_function
 
     def run(self):
         tool_infos = self.get_tool_info_function()
-        start_tool = build_workflow(tool_infos)
+        output_handler = RunBoxOutputHandler(self.add_line)
+        start_tool = build_workflow(tool_infos, output_handler.handle_output)
         input_file_path = self.input_entry.get()
         start_tool.run(input_file_path, "gui_out")
 
     def add_line(self, line):
         self.outputbox.insert(END, line)
+
+    def clear(self):
+        self.outputbox.delete(0, END)
 
     def pack(self, **options):
         self.frame.pack(options)
@@ -113,6 +131,7 @@ class RunBox:
 # Adds a tool to the workflow ToolBox
 def add_tool(target_tool_box, tool_tuple):
     target_tool_box.insert_tool(tool_tuple)
+
 
 ################################################################################
 # builds the GUI
@@ -155,6 +174,6 @@ def test_func(runbox_instance):
     runbox_instance.add_line("Testing ----------- Testing")
 
 runbox = RunBox(root, toolboxR.get_all_tool_info)
-runbox.pack(side=LEFT)
+runbox.pack(fill=X)
 
 mainloop()
