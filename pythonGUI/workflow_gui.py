@@ -5,8 +5,8 @@ def load_available_tools():
             ("tool D", "obj"), ("tool F", "obj")]
 
 class ToolBox:
-    def __init__(self, root, tool_tuples = None):
-        self.listbox = Listbox(root)
+    def __init__(self, parent, tool_tuples = None):
+        self.listbox = Listbox(parent)
         self.tool_tuples = []
         if tool_tuples:
             self.insert_tools(tool_tuples)
@@ -54,9 +54,14 @@ def add_tool(target_tool_box, tool_tuple):
     target_tool_box.insert_tool(tool_tuple)
 
 root = Tk()
+root.title("ISIS Workflow GUI")
 
-toolboxL = ToolBox(root, load_available_tools())
-toolboxL.pack(side=LEFT)
+leftboxframe = Frame(root)
+lLabel = Label(leftboxframe, text="Available Tools")
+lLabel.pack()
+toolboxL = ToolBox(leftboxframe, load_available_tools())
+toolboxL.pack()
+leftboxframe.pack(side=LEFT)
 
 buttonframe = Frame(root)
 
@@ -69,7 +74,11 @@ moveL.pack(fill=X)
 
 buttonframe.pack(side=LEFT)
 
-toolboxR = ToolBox(root)
-toolboxR.pack(side=LEFT)
+rightboxframe = Frame(root)
+rLabel = Label(rightboxframe, text="Workflow")
+rLabel.pack()
+toolboxR = ToolBox(rightboxframe)
+toolboxR.pack()
+rightboxframe.pack(side=LEFT)
 
 mainloop()
