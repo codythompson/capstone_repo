@@ -1,15 +1,11 @@
 import os
+import thread
 from Tkinter import *
 
 from load_tools import get_tool_infos
 from workflow import *
 
-# TODO: Replace the "obj" strings with ToolInfo instances
-# TODO: return actual tools
-# TODO: Eventually instantiate the ToolInfo objects with data from file.
 def load_available_tools():
-#    return [("tool A", "obj"), ("tool B", "obj"), ("tool C", "obj"),
-#            ("tool D", "obj"), ("tool F", "obj")]
     tool_infos = get_tool_infos()
     tool_tuples = []
     for tool in tool_infos:
@@ -79,13 +75,9 @@ class RunBoxOutputHandler:
     def __init__(self, add_line_method):
         self.add_line_method = add_line_method
 
-    def handle_output(self, process):
-        while True:
-            next_line = process.stdout.readline()
-            if not next_line:
-                break
-            print "\r" + next_line
-            self.add_line_method(next_line)
+    def handle_output(self, next_line):
+        self.add_line_method(next_line)
+        print next_line
 
 class RunBox:
     def __init__(self, parent, get_tool_info_function):
@@ -110,14 +102,32 @@ class RunBox:
         self.clearbutton.pack(side=LEFT)
         buttonframe.pack(fill=X)
 
+        self.use_threading_checked = IntVar()
+        self.use_threading = Checkbutton(self.frame, text="Run on a new thread",
+                variable=self.use_threading_checked)
+        self.use_threading.pack(side=RIGHT)
+
         self.get_tool_info_function = get_tool_info_function
+
+    def lock_run_button(self):
+        self.runbutton.config(state=DISABLED)
+
+    def unlock_run_button(self):
+        self.runbutton.config(state=NORMAL)
 
     def run(self):
         tool_infos = self.get_tool_info_function()
         output_handler = RunBoxOutputHandler(self.add_line)
-        start_tool = build_workflow(tool_infos, output_handler.handle_output)
+        start_tool = build_workflow(tool_infos, output_handler.handle_output,
+                self.unlock_run_button)
         input_file_path = self.input_entry.get()
-        start_tool.run(input_file_path, "gui_out")
+
+        if self.use_threading_checked.get() == 1:
+            self.lock_run_button()
+            thread.start_new_thread(start_tool.run,
+                    (input_file_path, "gui_out", ))
+        else:
+            start_tool.run(input_file_path, "gui_out")
 
     def add_line(self, line):
         self.outputbox.insert(END, line)

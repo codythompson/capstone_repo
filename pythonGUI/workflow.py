@@ -2,18 +2,12 @@ import sys
 import subprocess
 
 ################################################################################
-# Prints the output from a running tool
+# Prints the given string
 # params:
-# process - the process object returned from the call to subprocess.Popen
+# string_to_display - The string to be printed
 ################################################################################
-def default_workflow_output_handler(process):
-    sys.stdout.flush()
-    while True:
-        next_line = process.stdout.readline()
-        if not next_line:
-            break
-        print "\r" + next_line
-        sys.stdout.flush()
+def default_workflow_output_handler(string_to_display):
+    print string_to_display
 
 ################################################################################
 # A class that acts as a step in a workflow.
@@ -24,15 +18,15 @@ class WorkflowTool:
     #
     # params:
     # tool_info - An instance of the ToolInfo class from tool_info.py.
-    # output_handler - A function that takes the process object resulting from
-    #                  a call to subprocess.Popen and handles output from
-    #                  process.stdout or process.stderr.
-    #                  Defaults to defualt_workflow_handler(process) above.
+    # output_handler - A function that takes in strings as input while a tool 
+    #                  is running. Basically a function that users of this class
+    #                  can create to handle displaying output from stdout.
     def __init__(self, tool_info, output_handler =
             default_workflow_output_handler):
         self.tool_info = tool_info
         self.output_handler = output_handler
         self.call_when_finished = None
+        self.call_at_end_of_workflow = None
 
     # sets the function/method to call when finished when the tool finishes 
     # running.
@@ -41,6 +35,9 @@ class WorkflowTool:
     # running. Should be given the next WorkflowTool objects run method.
     def set_call_when_finished(self, call_when_finished):
         self.call_when_finished = call_when_finished
+
+    def set_call_at_end_of_workflow(self, call_at_end_of_workflow_function):
+        self.call_at_end_of_workflow = call_at_end_of_workflow_function
 
     # Runs the tool using subprocess.Popen
     #
@@ -63,7 +60,16 @@ class WorkflowTool:
         print args
         #
         p = subprocess.Popen(args, stdout=subprocess.PIPE)
-        self.output_handler(p)
+
+        #continuously read the output
+        sys.stdout.flush()
+        while True:
+            next_line = p.stdout.readline()
+            if not next_line:
+                break
+            self.output_handler(next_line)
+            sys.stdout.flush()
+
         p.communicate()
 
         if self.call_when_finished:
@@ -72,6 +78,9 @@ class WorkflowTool:
                     add_extension_to_output)
             self.call_when_finished(output_fname, output_base_name,
                     add_extension_to_input, add_extension_to_output)
+
+        elif self.call_at_end_of_workflow:
+            self.call_at_end_of_workflow()
 
 ################################################################################
 # Builds a string of WorkflowTool objects based on the array of ToolInfo objects
@@ -86,9 +95,13 @@ class WorkflowTool:
 #
 # params:
 # tool_infos - An array of ToolInfo objects that represents a workflow.
+# default_workflow_output_handler - A function that will be called with strings
+#                                   from stdout as the tool runs.
+# call_at_end_of_workflow - A callback for when the last tool has finished
+#                            running
 ################################################################################
 def build_workflow(tool_infos, workflow_output_handler = 
-        default_workflow_output_handler):
+        default_workflow_output_handler, call_at_end_of_workflow = None):
     tools = []
 
     #create WorkflowTool objects
@@ -99,5 +112,9 @@ def build_workflow(tool_infos, workflow_output_handler =
     #be the next tools run method 
     for i in range(len(tools) - 1):
         tools[i].set_call_when_finished(tools[i + 1].run)
+
+    if call_at_end_of_workflow:
+        tools[len(tools) - 1].set_call_at_end_of_workflow(
+                call_at_end_of_workflow)
 
     return tools[0]
