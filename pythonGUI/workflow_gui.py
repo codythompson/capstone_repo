@@ -67,6 +67,22 @@ class ToolBox:
         string = string + "--------------------------"
         return string
 
+class RunBox:
+    def __init__(self, parent):
+        self.frame = Frame(parent)
+        self.runbutton = Button(self.frame, text="Run Workflow")
+        self.runbutton.pack(side=LEFT)
+
+        outputframe = Frame(self.frame)
+        self.outputbox_label = Label(outputframe, text="Output")
+        self.outputbox_label.pack()
+        self.outputbox = Listbox(outputframe)
+        self.outputbox.pack(fill=X)
+        outputframe.pack(side=LEFT, fill=X)
+
+    def pack(self, **options):
+        self.frame.pack(options)
+
 # Adds a tool to the workflow ToolBox
 def add_tool(target_tool_box, tool_tuple):
     target_tool_box.insert_tool(tool_tuple)
@@ -75,14 +91,17 @@ def add_tool(target_tool_box, tool_tuple):
 root = Tk()
 root.title("ISIS Workflow GUI")
 
-leftboxframe = Frame(root)
+#toolboxes
+toolframe = Frame(root)
+
+leftboxframe = Frame(toolframe)
 lLabel = Label(leftboxframe, text="Available Tools")
 lLabel.pack()
 toolboxL = ToolBox(leftboxframe, load_available_tools())
 toolboxL.pack(side=LEFT)
 leftboxframe.pack(side=LEFT)
 
-buttonframe = Frame(root)
+buttonframe = Frame(toolframe)
 
 moveR = Button(buttonframe, text="add >>",
         command= lambda: add_tool(toolboxR, toolboxL.selected()))
@@ -93,11 +112,17 @@ moveL.pack(fill=X)
 
 buttonframe.pack(side=LEFT)
 
-rightboxframe = Frame(root)
+rightboxframe = Frame(toolframe)
 rLabel = Label(rightboxframe, text="Workflow")
 rLabel.pack()
 toolboxR = ToolBox(rightboxframe)
 toolboxR.pack()
 rightboxframe.pack(side=LEFT)
+
+toolframe.pack()
+
+#runbox
+runbox = RunBox(root)
+runbox.pack(side=LEFT)
 
 mainloop()
