@@ -53,5 +53,8 @@ def get_tool_infos():
     isis2std = ToolInfo("", "isis2std", isis2std_input, isis2std_output)
     isis2std.other_args.append("format=jp2")
 
+    hiview_input = ToolArgInfo("jp2 file", "", "", ".jp2")
+    hiview = ToolInfo("", "hiview", hiview_input, None)
+
     return [tool_a, tool_b, tool_c, tool_d, mro2isis, spice_init, ctxcal,
-            ctxevenodd, cam2map, isis2std]
+            ctxevenodd, cam2map, isis2std, hiview]
