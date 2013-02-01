@@ -1,4 +1,4 @@
-<tool id="ctxcal" name="ctxcal">
+<tool id="isisIntermediary" name="ctxcal_TEST">
   	<description>
 		Executes a specified command line tool.
  	</description>
