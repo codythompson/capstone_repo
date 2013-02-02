@@ -10,7 +10,7 @@
   	</inputs>
 
 	<outputs>
-		<data name="to" format="cub" label="to"/>
+		<data name="to" format="cub" label="to="/>
 	</outputs>
 
 	<help>
