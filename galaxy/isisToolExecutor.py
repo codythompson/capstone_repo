@@ -46,8 +46,9 @@ def main():
         sub_proc = subprocess.Popen(command_args)
         sub_proc.communicate()
 
-        if not os.path.exists(output_path):
-            rename_extra_extensions(output_path)
+#        if not os.path.exists(output_path):
+#            rename_extra_extensions(output_path)
+        rename_extra_extensions(output_path)
 
 if __name__ == '__main__':
     main()
