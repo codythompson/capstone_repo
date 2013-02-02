@@ -1,0 +1,20 @@
+<tool id="isisIntermediary" name="ctxcal_TEST">
+  	<description>
+		Executes a specified command line tool.
+ 	</description>
+
+  	<command interpreter="python">isisToolExecutor.py ctxcal from=$from to=$to</command>
+
+  	<inputs>
+    		<param name="from" format="cub" type="data" label="from"/>
+  	</inputs>
+
+	<outputs>
+		<data name="to" format="cub" label="to"/>
+	</outputs>
+
+	<help>
+            The folder the tool lives in must be pointed to by the system path 
+            variable or located in the tools folder of this galaxy installation.
+	</help>
+</tool>
