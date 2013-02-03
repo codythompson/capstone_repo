@@ -8,6 +8,7 @@
     <tool file="CTXTestTools/spiceinit.xml"/>
     <tool file="CTXTestTools/ctxcal.xml"/>
     <tool file="CTXTestTools/ctxevenodd.xml"/>
-    <tool file="CTXTestTools/testwrapper.xml"/>
+    <tool file="CTXTestTools/testwrapperCTXCal.xml"/>
+    <tool file="CTXTestTools/testwrapperCTXEvenOdd.xml"/>
   </section>
 </toolbox>
