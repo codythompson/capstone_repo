@@ -15,6 +15,9 @@ else
     echo "Copying images.py to $1/lib/galaxy/datatypes/images.py" 
     cp -f images.py $1/lib/galaxy/datatypes/images.py
 
+    echo "Copying isisToolExecutor.py to $1/tools/CTXTestTools/"
+    cp -f isisToolExecutor.py $1/tools/CTXTestTools/isisToolExecutor.py
+
     echo "Copying File Directory of images to $1/database/files/Isis" 
     rm -rf $1/database/files/Isis
     cp -rf File_Directory/Isis $1/database/files/Isis

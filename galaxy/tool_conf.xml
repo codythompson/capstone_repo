@@ -10,5 +10,6 @@
     <tool file="CTXTestTools/ctxevenodd.xml"/>
     <tool file="CTXTestTools/testwrapperCTXCal.xml"/>
     <tool file="CTXTestTools/testwrapperCTXEvenOdd.xml"/>
+    <tool file="CTXTestTools/testwrapperCam2Map.xml"/>
   </section>
 </toolbox>
