@@ -1,4 +1,4 @@
-<tool id="isisIntermediary_CTXEvenOdd" name="ctx_EvenOdd_TEST">
+<tool id="ctxevenodd_isisToolExec" name="ctxevenodd via isisToolExecutor">
   	<description>
 		Executes a specified command line tool.
  	</description>
@@ -6,11 +6,11 @@
   	<command interpreter="python">isisToolExecutor.py ctxevenodd from=$from to=$to</command>
 
   	<inputs>
-    		<param name="from" format="cub" type="data" label="from"/>
+    		<param name="from" format="cub" type="data" label="Input cub"/>
   	</inputs>
 
 	<outputs>
-		<data name="to" format="cub" label="to"/>
+		<data name="to" format="cub" label="ctxevenodd Output cub"/>
 	</outputs>
 
 	<help>

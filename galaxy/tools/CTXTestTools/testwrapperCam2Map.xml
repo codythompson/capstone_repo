@@ -1,4 +1,4 @@
-<tool id="cam2map_isisToolExec" name="cam2map">
+<tool id="cam2map_isisToolExec" name="cam2map via isisToolExecutor">
   	<description>
 		Convert camera image to a map projection
  	</description>
@@ -6,12 +6,12 @@
   	<command interpreter="python">isisToolExecutor.py cam2map from=$from map=$map to=$to</command>
 
   	<inputs>
-    		<param name="from" format="img" type="data" label="from="/>
-		<param name="map" format="map" type="data" label="map="/>
+    		<param name="from" format="cub" type="data" label="Input Cub"/>
+		<param name="map" format="map" type="data" label="Map Input"/>
   	</inputs>
 
 	<outputs>
-		<data name="to" format="cub" label="to="/>
+		<data name="to" format="cub" label="cam2map Output Cub"/>
 	</outputs>
 
 	<help>
