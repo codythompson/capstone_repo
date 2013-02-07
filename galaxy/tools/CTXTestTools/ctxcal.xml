@@ -3,14 +3,16 @@
 		Radiometrically calibrates a CTX image
  	</description>
 
-  	<command>ctxcal from=$from to=$to</command>
+  	<command>ctxcal from=$input to=$output flatfile=$FLATFILE iof=$IOF</command>
 
   	<inputs>
-    		<param name="from" format="cub" type="data" label="from="/>
+    		<param name="input" format="cub" type="data" label="from="/>
+		<param name="FLATFILE" type="text" value="Internal Default" label="flatfile"/>
+		<param name="IOF" type="boolean" checked="true" truevalue="yes" falsevalue="no" label="iof - Convert to I/F"/>
   	</inputs>
 
 	<outputs>
-		<data name="to" format="cub" label="to="/>
+		<data name="output" format="cub" label="to="/>
 	</outputs>
 
 	<help>

@@ -1,13 +1,16 @@
 <tool id="mroctx2isis" name="mroctx2isis">
 	<description>Convert mro ctx to isis cube</description>
-  	<command>mroctx2isis from=$input to=$output</command>
+  	<command>mroctx2isis from=$input to=$output prefix=$PREFIX suffix=$SUFFIX fillgap=$FILLGAP</command>
 
   	<inputs>
     		<param format="img" name="input" type="data" label="from="/>
+		<param name="PREFIX" type="text" value="Computed" />
+		<param name="SUFFIX" type="text" value="Computed"/> 
+		<param name="FILLGAP" type="boolean" label="FILLGAP - Set zeros to null" checked="true" truevalue="yes" falsevalue="no"/>
   	</inputs>
 
   	<outputs>
-    		<data format="cub" name="output" label="to=" />
+    		<data format="cub" name="output" label="to" />
   	</outputs>
   	
 	<help>
