@@ -1,0 +1,19 @@
+<tool id="spiceinit_isisToolExecNoOutput" name="spiceinit via isisToolExecutor - uses defaults and web=yes">
+  	<description>
+		Executes a specified command line tool.
+ 	</description>
+
+  	<command interpreter="python">isisToolExecutorNoOutput.py spiceinit from=$from to=$to web=yes</command>
+
+  	<inputs>
+    		<param name="from" format="cub" type="data" label="Input cub"/>
+  	</inputs>
+
+	<outputs>
+		<data name="to" format="cub" label="ctxevenodd Output cub"/>
+	</outputs>
+
+	<help>
+            Uses web=yes and all other defaults
+	</help>
+</tool>
