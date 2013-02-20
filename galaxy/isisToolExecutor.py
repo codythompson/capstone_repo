@@ -44,6 +44,9 @@ def parse_args(args):
                 intermediary_args[split_arg[0]] = split_arg[1]
             else:
                 print_error("Unable to parse arg '" + arg + "' - No '=' found.")
+    #if the split keyword wasn't found - use all the args as the tool args
+    if not reading_tool_args:
+        return {}, args
     return intermediary_args, tool_args
 
 #TODO: Make this function not rely on the 'from=' label

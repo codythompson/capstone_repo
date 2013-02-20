@@ -1,0 +1,21 @@
+<tool id="spiceinit_newIntermediary" name="spiceinit_newIntermediary">
+  	<description>
+		Determine SPICE kernels for a camera cube
+ 	</description>
+
+  	<command interpreter="python">
+    		isisToolExecutor.py in_is_out=true to=$to start spiceinit from=$from web=yes
+	</command>
+
+  	<inputs>
+    		<param name="from" format="cub" type="data" label="from"/>
+  	</inputs>
+
+	<outputs>
+    		<data format="cub" name="to" label="to="/>
+	</outputs>
+
+	<help>
+		Remember to specify where you get your update kernels (web or local)
+	</help>
+</tool>
