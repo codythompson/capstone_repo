@@ -29,7 +29,17 @@ def print_error(message, exit_after = False, exit_code = 1):
     if exit_after:
         exit(exit_code)
 
+def contains_intermediary_args(args):
+    for arg in args:
+        if arg == tool_arg_start_keyword:
+            return True
+    return False
+
 def parse_args(args):
+    # if no start keyword - use all command line args for the tool
+    if not contains_intermediary_args(args):
+        return {}, args
+
     intermediary_args = {}
     tool_args = []
     reading_tool_args = False
@@ -44,9 +54,6 @@ def parse_args(args):
                 intermediary_args[split_arg[0]] = split_arg[1]
             else:
                 print_error("Unable to parse arg '" + arg + "' - No '=' found.")
-    #if the split keyword wasn't found - use all the args as the tool args
-    if not reading_tool_args:
-        return {}, args
     return intermediary_args, tool_args
 
 #TODO: Make this function not rely on the 'from=' label
