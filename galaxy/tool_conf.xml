@@ -11,5 +11,6 @@
     <tool file="CTXTestTools/testwrapperCTXCal.xml"/>
     <tool file="CTXTestTools/testwrapperCTXEvenOdd.xml"/>
     <tool file="CTXTestTools/testwrapperCam2Map.xml"/>
+    <tool file="CTXTestTools/spiceinitNewInterScript.xml"/>
   </section>
 </toolbox>
