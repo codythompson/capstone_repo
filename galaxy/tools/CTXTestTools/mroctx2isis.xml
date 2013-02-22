@@ -1,6 +1,6 @@
 <tool id="mroctx2isis" name="mroctx2isis">
 	<description>Convert mro ctx to isis cube</description>
-  	<command>mroctx2isis from=$input to=$output prefix=$PREFIX suffix=$SUFFIX fillgap=$FILLGAP</command>
+  	<command>isisToolExecutor.py mroctx2isis from=$input to=$output prefix=$PREFIX suffix=$SUFFIX fillgap=$FILLGAP</command>
 
   	<inputs>
     		<param format="img" name="input" type="data" label="from="/>
