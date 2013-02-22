@@ -12,5 +12,6 @@
     <tool file="CTXTestTools/testwrapperCTXEvenOdd.xml"/>
     <tool file="CTXTestTools/testwrapperCam2Map.xml"/>
     <tool file="CTXTestTools/spiceinitNewInterScript.xml"/>
+    <tool file="CTXTestTools/testwrapperMROCTX2ISIS.xml"/>
   </section>
 </toolbox>

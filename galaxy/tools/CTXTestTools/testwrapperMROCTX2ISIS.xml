@@ -1,0 +1,17 @@
+<tool id="mroctx2isis_wrapped" name="mroctx2isis via intermediary">
+    <description>IMG to cub</description>
+
+    <command interpreter="python">isisToolExecutor.py mroctx2isis from=$from to=$to</command>
+
+    <inputs>
+        <param format="img" name="from" type="data" label="IMG image" /> 
+    </inputs>
+
+    <outputs>
+        <data format="cub" name="to" label="cub after mroctx2isis" />
+    </outputs>
+
+    <help>
+        Input must be and IMG file
+    </help>
+</tool>
