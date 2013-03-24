@@ -10,22 +10,28 @@ This module will then add the file into Galaxy automatically.
 Created by Kolby Chien 27.2.2013
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 import sys
+import xml.etree.ElementTree as ET
 
 #global variable storing command line args
 commandLine = ""
 
 #Parse ISIS XML file and generate galaxy XML file
 def parseFile(inputFile):
-	f = open(inputFile, "r") #open specified input file
+	tree = ET.parse(inputFile)
+	root = tree.getroot()
+	name = root.get("name")
 
-	#Loop reads file line by line.  For each line, the first word is
-	#read to determine whether it is a name, input, parameter, 
-	#description, etc.
-	for line in f.readlines():
-		line.strip()
-		words = line.split(" ")
-		print words[0]
-	f.close()
+   	toolName(name)
+
+	description = root.find("description").text
+	toolDescribe(description)
+
+	comLine(name) #TODO add parameters
+
+	
+
+
+	#f.close()
 
 #Create a equivalent galaxy file
 def createGalaxyFile():
@@ -39,21 +45,43 @@ def createGalaxyFile():
 	galaxyFile = open(outputFile, "w")
 			
 
-'''
-#Convert tool name
-def toolName()
+
+#Convert tool name into galaxy format
+def toolName(name):
+	toolName = "<tool id=" + name + " name=" + name + ">"
+
 
 #Convert Description
-def toolDescribe():
+#TODO format text to remove intermediate tabs
+def toolDescribe(text):
+	toolDesc = "<description>" + text  + "</description>"
+
+
+#Convert Command Line
+#TODO add parameter functions
+def comLine(name):
+	comLine = "<command>isisToolExecutor.py " + name + " from=$input" + " to=$output</command>"
+
 
 #Convert Input
+#TODO test
 def convertInput():
+	fileInput = ""
+	inputs = '<inputs>\n' + '<param format=' + fileInput + ' name="input" type="data" label="from="/>' +'\n</inputs>'
+	print inputs
+
+'''
+#Convert Params
+def convertParams():
 
 #Convert Output
 def convertOutput():
+	outputs = '<outputs>\n' + '<data format=' + fileOutput + 'name="output" label="to"/>'
 
-#Convert Params
-def convertParams():
+#Add help section
+#TODO Text should refer to relavent isis website
+def convertHelp(text):
+	help = '<help>' + text + '</help>'
 
 #Add tool to galaxy.
 #Done after parsing
