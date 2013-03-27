@@ -65,6 +65,7 @@ def toolName(name, toolFile):
 #Convert Description
 #TODO format text to remove intermediate tabs
 def toolDescribe(text, toolFile):
+	text.strip()
 	toolDesc = '\n\t<description>' + text  + '</description>'
 	galaxyFile = open(toolFile, "a")
 	galaxyFile.write(toolDesc)
