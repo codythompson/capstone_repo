@@ -1,19 +1,23 @@
 <tool id="mroctx2isis" name="mroctx2isis">
-	<description>Convert mro ctx to isis cube</description>
-  	<command>isisToolExecutor.py mroctx2isis from=$input to=$output prefix=$PREFIX suffix=$SUFFIX fillgap=$FILLGAP</command>
+   <description>
+Convert camera image to a map projection
+  </description>
 
-  	<inputs>
-    		<param format="img" name="input" type="data" label="from="/>
-		<param name="PREFIX" type="text" value="Computed" />
-		<param name="SUFFIX" type="text" value="Computed"/> 
-		<param name="FILLGAP" type="boolean" label="FILLGAP - Set zeros to null" checked="true" truevalue="yes" falsevalue="no"/>
-  	</inputs>
+   <command>mroctx2isis from=$from to=$to</command>
 
-  	<outputs>
-    		<data format="cub" name="output" label="to" />
-  	</outputs>
-  	
-	<help>
-		Input must be an IMG file
-  	</help>
+    <inputs>
+   	 <param name="FROM" format="img" type="data" label="FROM="/>
+	 
+	 <param name="PREFIX" type="integer" value="Computed"/>
+	 <param name="SUFFIX" type="integer" value="Computed"/>
+	 <param name="FILLGAP" type="boolean" checked="true"/>
+    </inputs>
+
+    <outputs>
+   	 <data name="TO" format="cub" label="TO="/>
+    </outputs>
+
+<help>
+Input must be an IMG file
+</help>
 </tool>

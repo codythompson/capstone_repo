@@ -1,21 +1,22 @@
 <tool id="ctxcal" name="ctxcal">
-  	<description>
-		Radiometrically calibrates a CTX image
- 	</description>
+   <description>
+Convert camera image to a map projection
+  </description>
 
-  	<command>ctxcal from=$input to=$output flatfile=$FLATFILE iof=$IOF</command>
+   <command>ctxcal from=$from to=$to flatfile=$flatfile</command>
 
-  	<inputs>
-    		<param name="input" format="cub" type="data" label="from="/>
-		<param name="FLATFILE" type="text" value="Internal Default" label="flatfile"/>
-		<param name="IOF" type="boolean" checked="true" truevalue="yes" falsevalue="no" label="iof - Convert to I/F"/>
-  	</inputs>
+    <inputs>
+   	 <param name="from" format="cub" type="data" label="FROM="/>
+   	 <param name="flatfile" format="cub" type="data" label="FLATFILE="/>
 
-	<outputs>
-		<data name="output" format="cub" label="to="/>
-	</outputs>
+   	 <param name="IOF" type="boolean" checked="true"/>
+    </inputs>
 
-	<help>
-		Takes and outputs cub file
-	</help>
+    <outputs>
+   	 <data name="TO" format="cub" label="TO="/>
+    </outputs>
+
+<help>
+Takes and outputs .cub file
+</help>
 </tool>
