@@ -27,14 +27,35 @@ def parseFile(inputFile):
 	description = root.find("brief").text
 	toolDescribe(description, toolFileName)
 
-	comLine(name, toolFileName) #TODO add parameters
+	outputPresent = 1 #If there is an output, is 0, otherwise 1
 
-	inputType = "img"
+	#Parses through parameters to find if there is an output file.  
+	for child in root.find("groups").find("group"):
+		if child.get("name") == "TO":
+			outputPresent = 0
+	comLine(name, toolFileName, outputPresent) #TODO add parameters
+
+	inputType = ""
+	for child in root.find("groups").find("group"):
+		if child.get("name") == "FROM":
+			inputType = child.find("filter").text
+			inputType = inputType.strip()
+	inputType = inputType[2:]
+
 	convertInput(inputType, toolFileName)
 
 	convertParams(toolFileName)
 
-	outputType = "cub"
+	outputType = ""
+	if outputPresent is 0:
+		for child in root.find("groups").find("group"):
+			if child.get("name") == "TO":
+				outputType = child.find("filter").text
+				outputType = outputType.strip()
+		outputType = outputType[2:]
+	else:
+		outputType = "cub"
+
 	convertOutput(outputType, toolFileName)
 
 	convertHelp(name, toolFileName)
@@ -42,13 +63,8 @@ def parseFile(inputFile):
 
 #Create a equivalent galaxy file
 def createGalaxyFile():
-	outputFile = ""
-	temp = sys.argv[1]
-	for char in temp:
-		if char is ".":
-			break
-		else:
-			outputFile += char
+	outputFile = sys.argv[1]
+	outputFile = outputFile[:-4]
 	galaxyFile = open(outputFile, "w")
 	galaxyFile.close()
 			
@@ -65,7 +81,7 @@ def toolName(name, toolFile):
 #Convert Description
 #TODO format text to remove intermediate tabs
 def toolDescribe(text, toolFile):
-	text.strip()
+	text = text.strip()
 	toolDesc = '\n\t<description>' + text  + '</description>'
 	galaxyFile = open(toolFile, "a")
 	galaxyFile.write(toolDesc)
@@ -73,9 +89,12 @@ def toolDescribe(text, toolFile):
 
 
 #Convert Command Line
-#TODO add parameter functions
-def comLine(name, toolFile):
-	comLine = '\n\t<command>isisToolExecutor.py ' + name + ' from=$input' + ' to=$output</command>'
+#TODO add parameter functions and fix if statement to check for output
+def comLine(name, toolFile, outputPresent):
+	if outputPresent is 1:
+		comLine = '\n\t<command interpreter="python">isisToolExecutor.py in_is_out=true to=$to start ' + name + ' from=$input</command>'
+	else:
+		comLine = '\n\t<command interpreter="python">isisToolExecutor.py ' + name + ' from=$input' + ' to=$output</command>'
 	galaxyFile = open(toolFile, "a")
 	galaxyFile.write(comLine)
 	galaxyFile.close()
