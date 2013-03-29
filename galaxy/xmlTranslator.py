@@ -63,10 +63,17 @@ def parseFile(inputFile):
 
 #Create a equivalent galaxy file
 def createGalaxyFile():
-	outputFile = sys.argv[1]
-	outputFile = outputFile[:-4]
-	galaxyFile = open(outputFile, "w")
-	galaxyFile.close()
+	if len(sys.argv) < 1:
+		print "Usage: Accepts 1 xml file"
+		exit()
+	elif len(sys.argv) > 1:
+		print "Usage: Accepts 1 xml file"
+		exit()
+	else:
+		outputFile = sys.argv[1]
+		outputFile = outputFile[:-4]
+		galaxyFile = open(outputFile, "w")
+		galaxyFile.close()
 			
 
 
