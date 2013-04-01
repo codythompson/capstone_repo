@@ -38,7 +38,7 @@ def parseFile(inputFile):
 		inputName = child.get("name")
 		inputs.append(inputName)
 	for child in root.find("groups"):
-		if child.get("name") != "Files":
+		if (child.get("name") != "Files" and child.get("name") != "Input Files"):
 			for child in child:
 				paramName = child.get("name")
 				params.append(paramName)
@@ -61,13 +61,31 @@ def parseFile(inputFile):
 	#Convert tool parameters to Galaxy
 	paramType = []
 	paramMin = []
+	paramMax = []
 	paramDefault = []
 	for child in root.find("groups"):
-		if child.get("name") != "Files":
+		if (child.get("name") != "Files" and child.get("name") != "Input Files"):
 			for child in child:
-				paramName = child.get("name")
-				params.append(paramName)
-	convertParams(toolFileName)
+				#print child.get("name")
+				pType = child.find("type").text
+				paramType.append(pType)
+				try:
+					pMin = child.find("minimum").text
+					paramMin.append(pMin)
+				except AttributeError:
+					paramMin.append("No Min")
+				try:
+					pMax = child.find("maximum").text
+					paramMin.append(pMax)
+				except AttributeError:
+					paramMax.append("No Max")
+				try:
+					pDef = child.find("internalDefault").text
+					paramDefault.append(pDef)
+				except AttributeError:
+					pDef = child.find("default").find("item").text
+					paramDefault.append(pDef)
+	convertParams(params, paramType, paramMin, paramMax, paramDefault, toolFileName)
 
 	#Determine tool's output file type
 	outputType = ""
@@ -156,17 +174,41 @@ def convertInput(inputName, inputType, toolFile):
 			pass
 		else:
 			for fileType in inputType:
-				inputs = '\n\t\t<param name="' + index + '" format="' + fileType + '" type="data" label="from="/>'
+				inputs = '\n\t\t<param name="' + index + '" format="' + fileType + '" type="data" label="' + index + '="/>'
 				galaxyFile.write(inputs)
 				break
 	galaxyFile.close()
 
 
 #Convert Params
-def convertParams(toolFile):
-	
-	closeInput = '\n\t</inputs>'
+def convertParams(params, paramType, paramMin, paramMax, paramDefault, toolFile):
 	galaxyFile = open(toolFile, "a")
+	params = list(reversed(params))
+	paramType = list(reversed(paramType))
+	paramMin = list(reversed(paramMin))
+	paramMax = list(reversed(paramMax))
+	paramDefault = list(reversed(paramDefault))
+	while len(params) > 0:
+		curParam = params.pop()
+		curParamType = paramType.pop()
+		curParamMin = paramMin.pop()
+		curParamMax = paramMax.pop()
+		curParamDefault = paramDefault.pop()
+		paramInput = ""
+		if curParamType == "integer":
+			if (curParamMin != "No Min" and curParamMax == "No Max"):
+				paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" min="' + curParamMin + '" value="' + curParamDefault + '"/>'
+			elif (curParamMin == "No Min" and curParamMax != "No Max"):
+				paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" max="' + curParamMax + '" value="' + curParamDefault + '"/>'
+			elif (curParamMin != "No Min" and curParamMax != "No Max"):
+				paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" min="' + curParamMin + '" max="' + curParamMax + '" value="' + curParamDefault + '"/>'
+			else:
+				paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" value="' + curParamDefault + '"/>'
+			galaxyFile.write(paramInput)
+		elif curParamType == "boolean":
+			paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" checked="' + curParamDefault.lower() + '" truevalue="yes" falsevalue="no"/>'
+			galaxyFile.write(paramInput)
+	closeInput = '\n\t</inputs>'
 	galaxyFile.write(closeInput)
 	galaxyFile.close()
 
