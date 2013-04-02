@@ -12,9 +12,6 @@ Created by Kolby Chien 27.2.2013
 import sys
 import xml.etree.ElementTree as ET
 
-#global variable storing command line args
-commandLine = ""
-
 #Parse ISIS XML file and generate galaxy XML file
 def parseFile(inputFile):
 	tree = ET.parse(inputFile)
@@ -22,19 +19,88 @@ def parseFile(inputFile):
 	name = root.get("name")
 	toolFileName = name
 
+	#Determine tool name and create outer XML element
    	toolName(name, toolFileName)
 
+	#Tool description
 	description = root.find("brief").text
 	toolDescribe(description, toolFileName)
 
-	comLine(name, toolFileName) #TODO add parameters
+	outputPresent = 1 #If there is an output, is 0, otherwise 1
 
-	inputType = "img"
-	convertInput(inputType, toolFileName)
+	#Parses through xml file to find inputs and output 
+	inputs = []
+	params = []
+	for child in root.find("groups").find("group"):
+		#If an output file exists, set the flag
+		if child.get("name") == "TO":
+			outputPresent = 0
+		inputName = child.get("name")
+		inputs.append(inputName)
+	for child in root.find("groups"):
+		if (child.get("name") != "Files" and child.get("name") != "Input Files"):
+			for child in child:
+				paramName = child.get("name")
+				params.append(paramName)
+	comLine(name, toolFileName, inputs, params, outputPresent) 
 
-	convertParams(toolFileName)
+	#Convert isis inputs to galaxy format
+	inputFileType = []
+	for child in root.find("groups").find("group"):
+		try:
+			inputType = child.find("filter").text
+			inputType = inputType.strip()
+			inputType = inputType[2:]
+			inputFileType.append(inputType)
+		except AttributeError:
+			inputType = child.find("type").text
+			if inputType == "cube":
+				inputFileType.append("cub")
+	convertInput(inputs, inputFileType, toolFileName)
 
-	outputType = "cub"
+	#Convert tool parameters to Galaxy
+	paramType = []
+	paramMin = []
+	paramMax = []
+	paramDefault = []
+	for child in root.find("groups"):
+		if (child.get("name") != "Files" and child.get("name") != "Input Files"):
+			for child in child:
+				#print child.get("name")
+				pType = child.find("type").text
+				paramType.append(pType)
+				try:
+					pMin = child.find("minimum").text
+					paramMin.append(pMin)
+				except AttributeError:
+					paramMin.append("No Min")
+				try:
+					pMax = child.find("maximum").text
+					paramMin.append(pMax)
+				except AttributeError:
+					paramMax.append("No Max")
+				try:
+					pDef = child.find("internalDefault").text
+					paramDefault.append(pDef)
+				except AttributeError:
+					pDef = child.find("default").find("item").text
+					paramDefault.append(pDef)
+	convertParams(params, paramType, paramMin, paramMax, paramDefault, toolFileName)
+
+	#Determine tool's output file type
+	outputType = ""
+	if outputPresent is 0:
+		for child in root.find("groups").find("group"):
+			if child.get("name") == "TO":
+				try:
+					outputType = child.find("filter").text
+					outputType = outputType.strip()
+					outputType = outputType[2:]
+				except AttributeError:
+					outputType = "cub"
+	else:
+		outputType = "cub"
+
 	convertOutput(outputType, toolFileName)
 
 	convertHelp(name, toolFileName)
@@ -42,15 +108,17 @@ def parseFile(inputFile):
 
 #Create a equivalent galaxy file
 def createGalaxyFile():
-	outputFile = ""
-	temp = sys.argv[1]
-	for char in temp:
-		if char is ".":
-			break
-		else:
-			outputFile += char
-	galaxyFile = open(outputFile, "w")
-	galaxyFile.close()
+	if len(sys.argv) < 1:
+		print "Usage: Accepts 1 xml file"
+		exit()
+	elif len(sys.argv) > 2:
+		print "Usage: Accepts 1 xml file"
+		exit()
+	else:
+		outputFile = sys.argv[1]
+		outputFile = outputFile[:-4]
+		galaxyFile = open(outputFile, "w")
+		galaxyFile.close()
 			
 
 
@@ -63,8 +131,8 @@ def toolName(name, toolFile):
 
 
 #Convert Description
-#TODO format text to remove intermediate tabs
 def toolDescribe(text, toolFile):
+	text = text.strip()
 	toolDesc = '\n\t<description>' + text  + '</description>'
 	galaxyFile = open(toolFile, "a")
 	galaxyFile.write(toolDesc)
@@ -72,27 +140,75 @@ def toolDescribe(text, toolFile):
 
 
 #Convert Command Line
-#TODO add parameter functions
-def comLine(name, toolFile):
-	comLine = '\n\t<command>isisToolExecutor.py ' + name + ' from=$input' + ' to=$output</command>'
+#TODO add parameter functions and fix if statement to check for output
+def comLine(name, toolFile, inputs, params, outputPresent):
+	#compile inputs and output files for command line
+	inputString = ""
+	inputs = list(reversed(inputs))
+	while len(inputs) > 0:
+		temp = inputs.pop()
+		inputString += temp + "=$" + temp + ' '
+
+	#compile params for command line
+	paramString = ""
+	params = list(reversed(params))
+	while len(params) > 0:
+		temp = params.pop()
+		paramString += temp + "=$" + temp + ' '
+	if outputPresent is 1:
+		comLine = '\n\t<command interpreter="python">isisToolExecutor.py in_is_out=true to=$to start ' + name + ' ' + inputString + paramString + '</command>'
+	else:
+		comLine = '\n\t<command interpreter="python">isisToolExecutor.py ' + name + ' ' + inputString + paramString + '</command>'
 	galaxyFile = open(toolFile, "a")
 	galaxyFile.write(comLine)
 	galaxyFile.close()
 
 
 #Convert Input
-#TODO test
-def convertInput(inputType, toolFile):
-	inputs = '\n\t<inputs>\n' + '\t\t<param format="' + inputType + '" name="input" type="data" label="from="/>'
+def convertInput(inputName, inputType, toolFile):
 	galaxyFile = open(toolFile, "a")
+	inputs = '\n\t<inputs>'
 	galaxyFile.write(inputs)
+	for index in inputName:
+		if index == "TO":
+			pass
+		else:
+			for fileType in inputType:
+				inputs = '\n\t\t<param name="' + index + '" format="' + fileType + '" type="data" label="' + index + '="/>'
+				galaxyFile.write(inputs)
+				break
 	galaxyFile.close()
 
 
 #Convert Params
-def convertParams(toolFile):
-	closeInput = '\n\t</inputs>'
+def convertParams(params, paramType, paramMin, paramMax, paramDefault, toolFile):
 	galaxyFile = open(toolFile, "a")
+	params = list(reversed(params))
+	paramType = list(reversed(paramType))
+	paramMin = list(reversed(paramMin))
+	paramMax = list(reversed(paramMax))
+	paramDefault = list(reversed(paramDefault))
+	while len(params) > 0:
+		curParam = params.pop()
+		curParamType = paramType.pop()
+		curParamMin = paramMin.pop()
+		curParamMax = paramMax.pop()
+		curParamDefault = paramDefault.pop()
+		paramInput = ""
+		if curParamType == "integer":
+			if (curParamMin != "No Min" and curParamMax == "No Max"):
+				paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" min="' + curParamMin + '" value="' + curParamDefault + '"/>'
+			elif (curParamMin == "No Min" and curParamMax != "No Max"):
+				paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" max="' + curParamMax + '" value="' + curParamDefault + '"/>'
+			elif (curParamMin != "No Min" and curParamMax != "No Max"):
+				paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" min="' + curParamMin + '" max="' + curParamMax + '" value="' + curParamDefault + '"/>'
+			else:
+				paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" value="' + curParamDefault + '"/>'
+			galaxyFile.write(paramInput)
+		elif curParamType == "boolean":
+			paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" checked="' + curParamDefault.lower() + '" truevalue="yes" falsevalue="no"/>'
+			galaxyFile.write(paramInput)
+	closeInput = '\n\t</inputs>'
 	galaxyFile.write(closeInput)
 	galaxyFile.close()
 
@@ -104,8 +220,7 @@ def convertOutput(outputType, toolFile):
 	galaxyFile.write(outputs)
 	galaxyFile.close()
 
-#Add help section
-#TODO Text should refer to relavent isis website
+#Adds help section to galaxy xml which refers user to relavent isis tool page
 def convertHelp(tool,toolFile):
 	help = '\n\t<help>isis.astrogeology.usgs.gov/Application/presentation/Tabbed/' + tool + '/' + tool + '.html</help>' + '\n</tool>'
 	galaxyFile = open(toolFile, "a")
