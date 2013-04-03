@@ -14,7 +14,7 @@ filename = "galaxy/tool_conf.xml"
 tool_conf = open(filename, "r+")
 category = "CTX Test Tools"
 category_found = False
-xml_file = "CTXTestTools/isis2std.xml"
+xml_file = "../../xml/appjit.xml"
 
 # This function 'inserts' a string into the tool_conf file by renaming the file (appending
 # '.bak' to preserve the file in case of errors) and then re-writing with the original
@@ -36,6 +36,25 @@ def insert(str):
 					tool_conf.write(str)
 	# If everything completes successfully, remove the backup file
 	os.remove(filename + ".bak")
+
+# Retrieve tool category from XML file
+def get_category(str):
+	with open("../../xml/"+str, "r") as orig_xml:
+		found = False
+		for line in orig_xml:
+			# Check for categoryItem tag
+			if line.find("<categoryItem>") != -1:
+				# Strip the tags and set the category
+				category = line.strip()[14:-15]
+				found = True
+			# Check for missionItem tag
+			elif line.find("<missionItem>") != -1:
+				# Strip the tags and set the category
+				category = line.strip()[13:-14]
+				found = True
+		# If no categorization string is found in the file...
+		if found == False:
+			print("No category found for " + str + ".")
 
 # Search the tool_conf file to determine whether the tool already exists in it
 for line in tool_conf:
