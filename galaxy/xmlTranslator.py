@@ -45,8 +45,11 @@ def parseFile(inputFile):
 	comLine(name, toolFileName, inputs, params, outputPresent) 
 
 	#Convert isis inputs to galaxy format
+	inputs = []
 	inputFileType = []
 	for child in root.find("groups").find("group"):
+		if (child.get("name") != "TO" and child.find("type").text != "boolean"):
+			inputs.append(child.get("name"))
 		try:
 			inputType = child.find("filter").text
 			inputType = inputType.strip()
@@ -59,33 +62,7 @@ def parseFile(inputFile):
 	convertInput(inputs, inputFileType, toolFileName)
 
 	#Convert tool parameters to Galaxy
-	paramType = []
-	paramMin = []
-	paramMax = []
-	paramDefault = []
-	for child in root.find("groups"):
-		if (child.get("name") != "Files" and child.get("name") != "Input Files"):
-			for child in child:
-				#print child.get("name")
-				pType = child.find("type").text
-				paramType.append(pType)
-				try:
-					pMin = child.find("minimum").text
-					paramMin.append(pMin)
-				except AttributeError:
-					paramMin.append("No Min")
-				try:
-					pMax = child.find("maximum").text
-					paramMin.append(pMax)
-				except AttributeError:
-					paramMax.append("No Max")
-				try:
-					pDef = child.find("internalDefault").text
-					paramDefault.append(pDef)
-				except AttributeError:
-					pDef = child.find("default").find("item").text
-					paramDefault.append(pDef)
-	convertParams(params, paramType, paramMin, paramMax, paramDefault, toolFileName)
+	convertParams(inputFile, toolFileName)
 
 	#Determine tool's output file type
 	outputType = ""
@@ -166,48 +143,77 @@ def comLine(name, toolFile, inputs, params, outputPresent):
 
 #Convert Input
 def convertInput(inputName, inputType, toolFile):
+	inputName = list(reversed(inputName))
+	inputType = list(reversed(inputType))
 	galaxyFile = open(toolFile, "a")
-	inputs = '\n\t<inputs>'
-	galaxyFile.write(inputs)
-	for index in inputName:
-		if index == "TO":
+	inputStart = '\n\t<inputs>'
+	galaxyFile.write(inputStart)
+	while len(inputName) > 0:
+		curName = inputName.pop()
+		curType = inputType.pop()
+		if curName == "TO":
 			pass
+		elif curName == "FROM":
+			inputs = '\n\t\t<param name="' + curName + '" format="' + curType + '" type="data" label="' + curName + '="/>'
+			galaxyFile.write(inputs)
 		else:
-			for fileType in inputType:
-				inputs = '\n\t\t<param name="' + index + '" format="' + fileType + '" type="data" label="' + index + '="/>'
-				galaxyFile.write(inputs)
-				break
+			inputs = '\n\t\t<param name="' + curName + '" format="' + curType + '" type="data" label="' + curName + '=" optional="true"/>' 
+			galaxyFile.write(inputs)		
 	galaxyFile.close()
 
 
 #Convert Params
-def convertParams(params, paramType, paramMin, paramMax, paramDefault, toolFile):
+def convertParams(inputFile, toolFile):
 	galaxyFile = open(toolFile, "a")
-	params = list(reversed(params))
-	paramType = list(reversed(paramType))
-	paramMin = list(reversed(paramMin))
-	paramMax = list(reversed(paramMax))
-	paramDefault = list(reversed(paramDefault))
-	while len(params) > 0:
-		curParam = params.pop()
-		curParamType = paramType.pop()
-		curParamMin = paramMin.pop()
-		curParamMax = paramMax.pop()
-		curParamDefault = paramDefault.pop()
-		paramInput = ""
-		if curParamType == "integer":
-			if (curParamMin != "No Min" and curParamMax == "No Max"):
-				paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" min="' + curParamMin + '" value="' + curParamDefault + '"/>'
-			elif (curParamMin == "No Min" and curParamMax != "No Max"):
-				paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" max="' + curParamMax + '" value="' + curParamDefault + '"/>'
-			elif (curParamMin != "No Min" and curParamMax != "No Max"):
-				paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" min="' + curParamMin + '" max="' + curParamMax + '" value="' + curParamDefault + '"/>'
-			else:
-				paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" value="' + curParamDefault + '"/>'
-			galaxyFile.write(paramInput)
-		elif curParamType == "boolean":
-			paramInput = '\n\t\t<param name="' + curParam + '" type="' + curParamType + '" checked="' + curParamDefault.lower() + '" truevalue="yes" falsevalue="no"/>'
-			galaxyFile.write(paramInput)
+	tree = ET.parse(inputFile)
+	root = tree.getroot()
+	for child in root.find("groups"):
+		if (child.get("name") != "Files" and child.get("name") != "Input Files"):
+			for child in child:
+				pName = child.get("name")
+				pType = ""
+				pMin = ""
+				pMax = ""
+				pDefault = ""
+				paramLine = ""
+				if (child.find("type").text == "integer"):
+					pType = child.find("type").text
+					try:
+						pMin = child.find("minimum").text
+					except AttributeError:
+						pMin = ""
+					try:
+						pMax = child.find("maximum").text
+					except AttributeError:
+						pMax = ""
+					try:
+						pDefault = child.find("internalDefault").text
+						if (pDefault == "Computed" or "Internal Default"):
+							pDefault == ""
+					except AttributeError:
+						pDefault = child.find("default").find("item").text
+					if (pMin == "" and pMax == ""):
+						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '"/>'
+					elif (pMin != "" and pMax == ""):
+						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '" min="' + pMin + '"/>'
+					elif (pMin == "" and pMax != ""):
+						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '" max="' + pMax + '"/>'
+					else:
+						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '" min="' + pMin + '" max="' + pMax + '"/>'
+				elif (child.find("type") == "boolean"):
+					pType = child.find("type").text
+					try:
+						pDefault = child.find("internalDefault").text
+						if (pDefault == "Computed" or "Internal Default"):
+							pDefault == ""
+					except AttributeError:
+						pDefault = child.find("default").find("item").text
+					paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" checked="' + pDefault.lower() + '" truevalue = "yes" falsevalue="no"/>'
+				elif (child.find("type") == "filetype"):
+
+				galaxyFile.write(paramLine)
+						
+						
 	closeInput = '\n\t</inputs>'
 	galaxyFile.write(closeInput)
 	galaxyFile.close()
