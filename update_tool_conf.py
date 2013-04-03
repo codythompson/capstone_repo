@@ -1,13 +1,11 @@
 import os, sys
 
-######
-# Created by Isaac Pitterle
-#
-# This file currently uses a hard-coded filename, section name (category)
-# and XML filepath.  These all need to be retrieved dynamically based on the
-# file passed in to the XML Translator.
-#
-######
+'''
+Created by Isaac Pitterle
+
+This file currently uses a hard-coded filename and XML filepath.
+These all need to be retrieved dynamically based on the file passed in to the XML Translator.
+'''
 
 # TODO: Get these strings dynamically
 filename = "galaxy/tool_conf.xml"
@@ -16,9 +14,11 @@ category = "CTX Test Tools"
 category_found = False
 xml_file = "../../xml/appjit.xml"
 
-# This function 'inserts' a string into the tool_conf file by renaming the file (appending
-# '.bak' to preserve the file in case of errors) and then re-writing with the original
-# filename, since Python doesn't support actual insertion
+'''
+This function 'inserts' a string into the tool_conf file by renaming the file (appending
+'.bak' to preserve the file in case of errors) and then re-writing with the original
+filename, since Python doesn't support actual insertion
+'''
 def insert(str):
 	# Move original tool_conf.xml to tool_conf.xml.bak
 	os.rename(filename, filename + ".bak")
@@ -37,7 +37,9 @@ def insert(str):
 	# If everything completes successfully, remove the backup file
 	os.remove(filename + ".bak")
 
-# Retrieve tool category from XML file
+'''
+This function retrieves tool category from the XML file specified by 'str'
+'''
 def get_category(str):
 	with open("../../xml/"+str, "r") as orig_xml:
 		found = False
