@@ -151,6 +151,11 @@ def convertInput(inputName, inputType, toolFile):
 	while len(inputName) > 0:
 		curName = inputName.pop()
 		curType = inputType.pop()
+		temp = curType.split()
+		if len(temp) > 1:
+			temp1 = temp.pop()
+			temp1 = temp1[2:]
+			curType = temp1 + ',' + temp.pop()
 		if curName == "TO":
 			pass
 		elif curName == "FROM":
@@ -192,30 +197,41 @@ def convertParams(inputFile, toolFile):
 						pMax = ""
 					try:
 						pDefault = child.find("internalDefault").text
-						if (pDefault == "Computed" or "Internal Default"):
-							pDefault == ""
 					except AttributeError:
 						try:
 							pDefault = child.find("default").find("item").text
-						except AttributeError: 
-							pDefault =""
-					if (pMin == "" and pMax == ""):
-						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '"/>'
-					elif (pMin != "" and pMax == ""):
-						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '" min="' + pMin + '"/>'
-					elif (pMin == "" and pMax != ""):
-						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '" max="' + pMax + '"/>'
+						except AttributeError:
+							pDefault = ""
+					if (pDefault == "Computed" or pDefault == "Internal Default" or pDefault == "Use default range" or pDefault == ""):
+						if (pMin == "" and pMax == ""):
+							paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" optional="true"/>'
+						elif (pMin != "" and pMax == ""):
+							paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" min="' + pMin + '" optional="true"/>'
+						elif (pMin == "" and pMax != ""):
+							paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" max="' + pMax + '" optional="true"/>'
+						else:
+							paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" min="' + pMin + '" max="' + pMax + '" optional="true"/>'
+						galaxyFile.write(paramLine)
 					else:
-						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '" min="' + pMin + '" max="' + pMax + '"/>'
+						if (pMin == "" and pMax == ""):
+							paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '"/>'
+						elif (pMin != "" and pMax == ""):
+							paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '" min="' + pMin + '"/>'
+						elif (pMin == "" and pMax != ""):
+							paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '" max="' + pMax + '"/>'
+						else:
+							paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '" min="' + pMin + '" max="' + pMax + '"/>'
+						galaxyFile.write(paramLine)
 				elif (child.find("type").text == "boolean"):
 					pType = child.find("type").text
 					try:
 						pDefault = child.find("internalDefault").text
-						if (pDefault == "Computed" or "Internal Default"):
+						if (pDefault == "Computed" or "Internal Default" or "Use default range"):
 							pDefault == ""
 					except AttributeError:
 						pDefault = child.find("default").find("item").text
 					paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" checked="' + pDefault.lower() + '" truevalue = "yes" falsevalue="no"/>'
+					galaxyFile.write(paramLine)
 				elif (child.find("type").text == "filename"):
 					pType = "data"
 					fileType = ""
@@ -226,7 +242,8 @@ def convertParams(inputFile, toolFile):
 					except:
 						fileType = ""
 					paramLine = '\n\t\t<param name="'+ pName + '" format="' + fileType + '" type="' + pType + '" label="' + pName + '=" optional="true"/>'
-				elif (child.find("type").text.lower() == "string"):
+					galaxyFile.write(paramLine)
+				elif (child.find("type").text.lower() == "string"): #TODO Fix so URLs added
 					pDefault = child.find("default").find("item").text
 					try:
 						if child.find("list"):
@@ -241,10 +258,10 @@ def convertParams(inputFile, toolFile):
 									optionLine = '\n\t\t\t<option value="' + optionValue + '">' + optionValue + '</option>' 
 								galaxyFile.write(optionLine)
 							endParamLine = '\n\t\t</param>'
+							galaxyFile.write(endParamLine)
 					except AttributeError:
 						pType = "text"
-						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '"/>'
-				galaxyFile.write(paramLine)				
+						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '"/>'				
 	closeInput = '\n\t</inputs>'
 	galaxyFile.write(closeInput)
 	galaxyFile.close()
@@ -252,7 +269,7 @@ def convertParams(inputFile, toolFile):
 
 #Convert Output
 def convertOutput(outputType, toolFile):
-	outputs = '\n\t<outputs>\n' + '\t\t<data format="' + outputType + '" name="output" label="to"/>' + '\n\t</outputs>'
+	outputs = '\n\t<outputs>\n' + '\t\t<data format="' + outputType + '" name="TO" label="to"/>' + '\n\t</outputs>'
 	galaxyFile = open(toolFile, "a")
 	galaxyFile.write(outputs)
 	galaxyFile.close()
