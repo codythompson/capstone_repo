@@ -169,6 +169,7 @@ def convertParams(inputFile, toolFile):
 	root = tree.getroot()
 	for child in root.find("groups"):
 		if (child.get("name") != "Files" and child.get("name") != "Input Files"):
+			gName = child.get("name")
 			for child in child:
 				pName = child.get("name")
 				pType = ""
@@ -176,8 +177,11 @@ def convertParams(inputFile, toolFile):
 				pMax = ""
 				pDefault = ""
 				paramLine = ""
-				if (child.find("type").text == "integer"):
-					pType = child.find("type").text
+				if (child.find("type").text == "integer" or child.find("type").text == "double" or child.find("type").text == "float"):
+					if (child.find("type").text) == "double":
+						pType = "float"
+					else:
+						pType = child.find("type").text
 					try:
 						pMin = child.find("minimum").text
 					except AttributeError:
@@ -191,7 +195,10 @@ def convertParams(inputFile, toolFile):
 						if (pDefault == "Computed" or "Internal Default"):
 							pDefault == ""
 					except AttributeError:
-						pDefault = child.find("default").find("item").text
+						try:
+							pDefault = child.find("default").find("item").text
+						except AttributeError: 
+							pDefault =""
 					if (pMin == "" and pMax == ""):
 						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '"/>'
 					elif (pMin != "" and pMax == ""):
@@ -200,7 +207,7 @@ def convertParams(inputFile, toolFile):
 						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '" max="' + pMax + '"/>'
 					else:
 						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '" min="' + pMin + '" max="' + pMax + '"/>'
-				elif (child.find("type") == "boolean"):
+				elif (child.find("type").text == "boolean"):
 					pType = child.find("type").text
 					try:
 						pDefault = child.find("internalDefault").text
@@ -209,11 +216,35 @@ def convertParams(inputFile, toolFile):
 					except AttributeError:
 						pDefault = child.find("default").find("item").text
 					paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" checked="' + pDefault.lower() + '" truevalue = "yes" falsevalue="no"/>'
-				elif (child.find("type") == "filetype"):
-
-				galaxyFile.write(paramLine)
-						
-						
+				elif (child.find("type").text == "filename"):
+					pType = "data"
+					fileType = ""
+					try:
+						fileType = child.find("filter").text 
+						fileType = fileType.strip()
+						fileType = fileType[2:]
+					except:
+						fileType = ""
+					paramLine = '\n\t\t<param name="'+ pName + '" format="' + fileType + '" type="' + pType + '" label="' + pName + '=" optional="true"/>'
+				elif (child.find("type").text.lower() == "string"):
+					pDefault = child.find("default").find("item").text
+					try:
+						if child.find("list"):
+							paramLine = '\n\t\t<param name="' + pName + '" type="select" display="radio">'
+							galaxyFile.write(paramLine)
+							for child in child.find("list"):
+								optionLine = ""
+								optionValue = child.get("value")
+								if optionValue == pDefault:
+									optionLine = '\n\t\t\t<option value="' + optionValue + '" selected="true">' + optionValue + '</option>'
+								else: 
+									optionLine = '\n\t\t\t<option value="' + optionValue + '">' + optionValue + '</option>' 
+								galaxyFile.write(optionLine)
+							endParamLine = '\n\t\t</param>'
+					except AttributeError:
+						pType = "text"
+						paramLine = '\n\t\t<param name="' + pName + '" type="' + pType + '" value="' + pDefault + '"/>'
+				galaxyFile.write(paramLine)				
 	closeInput = '\n\t</inputs>'
 	galaxyFile.write(closeInput)
 	galaxyFile.close()
