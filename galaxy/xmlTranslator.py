@@ -124,7 +124,12 @@ def comLine(name, toolFile, inputs, params, outputPresent):
 	inputs = list(reversed(inputs))
 	while len(inputs) > 0:
 		temp = inputs.pop()
-		inputString += temp + "=$" + temp + ' '
+		if temp == "FROM":
+			inputString += temp + "=$input "
+		elif temp == "TO":
+			inputString += temp + "=$output "
+		else:
+			inputString += temp + "=$" + temp + ' '
 
 	#compile params for command line
 	paramString = ""
@@ -159,7 +164,7 @@ def convertInput(inputName, inputType, toolFile):
 		if curName == "TO":
 			pass
 		elif curName == "FROM":
-			inputs = '\n\t\t<param name="' + curName + '" format="' + curType + '" type="data" label="' + curName + '="/>'
+			inputs = '\n\t\t<param name="input" format="' + curType + '" type="data" label="' + curName + '="/>'
 			galaxyFile.write(inputs)
 		else:
 			inputs = '\n\t\t<param name="' + curName + '" format="' + curType + '" type="data" label="' + curName + '=" optional="true"/>' 
@@ -269,7 +274,7 @@ def convertParams(inputFile, toolFile):
 
 #Convert Output
 def convertOutput(outputType, toolFile):
-	outputs = '\n\t<outputs>\n' + '\t\t<data format="' + outputType + '" name="TO" label="to"/>' + '\n\t</outputs>'
+	outputs = '\n\t<outputs>\n' + '\t\t<data format="' + outputType + '" name="output" label="to"/>' + '\n\t</outputs>'
 	galaxyFile = open(toolFile, "a")
 	galaxyFile.write(outputs)
 	galaxyFile.close()
