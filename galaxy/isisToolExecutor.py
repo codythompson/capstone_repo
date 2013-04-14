@@ -106,21 +106,21 @@ def main():
 
         print repr(tool_args)
 
-#        sub_proc = subprocess.Popen(tool_args)
-#        sub_proc.communicate()
-#
-#        input_path = get_input_filename(tool_args)
-#
-#        if in_is_out_key in intermediary_args and intermediary_args[in_is_out_key] == in_is_out_value_true:
-#            output_path = intermediary_args[output_filename_key]
-#            copy_input_to_output(input_path, output_path)
-#        else:
-#            output_path = get_output_filename(tool_args)
+        sub_proc = subprocess.Popen(tool_args)
+        sub_proc.communicate()
+
+        input_path = get_input_filename(tool_args)
+
+        if in_is_out_key in intermediary_args and intermediary_args[in_is_out_key] == in_is_out_value_true:
+            output_path = intermediary_args[output_filename_key]
+            copy_input_to_output(input_path, output_path)
+        else:
+            output_path = get_output_filename(tool_args)
 
 #        if not os.path.exists(output_path):
 #            rename_extra_extensions(output_path)
 #TODO Don't always rename the files with extra extensions
-#        rename_extra_extensions(output_path)
+        rename_extra_extensions(output_path)
 
 if __name__ == '__main__':
     main()
