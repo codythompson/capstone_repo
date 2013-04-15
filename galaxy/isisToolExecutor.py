@@ -104,6 +104,7 @@ def main():
         intermediary_args, tool_args = parse_args(sys.argv[1:])
         tool_args = remove_args_with_value_none(tool_args)
 
+        print repr(intermediary_args)
         print repr(tool_args)
 
         sub_proc = subprocess.Popen(tool_args)
