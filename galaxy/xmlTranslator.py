@@ -365,6 +365,10 @@ def convertParams(inputFile, toolFile):
 								galaxyFile.write(optionLine)
 							endParamLine = '\n\t\t</param>' #End param for options
 							galaxyFile.write(endParamLine)
+						else:
+							paramLine = '\n\t\t<param name="' + pName + '" type="text" ' + \
+								'value="' + pDefault + '"/>'
+							galaxyFile.write(paramLine)
 					#No list, is URL
 					except AttributeError:
 						pType = "text"
