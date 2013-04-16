@@ -165,7 +165,7 @@ def comLine(name, toolFile, inputs, params, outputPresent):
 	#If there is a not a "TO" section, execute extra parameters 
 	#in isisToolExecutor.py and then append inputs and params
 	if outputPresent is 1:
-		comLine = '\n\t<command interpreter="python">isisToolExecutor.py in_is_out=true to=$to start ' + \
+		comLine = '\n\t<command interpreter="python">isisToolExecutor.py in_is_out=true to=$output start ' + \
 			 name + ' ' + inputString + paramString + '</command>'
 	else:
 		comLine = '\n\t<command interpreter="python">isisToolExecutor.py ' + \
@@ -229,7 +229,25 @@ def convertParams(inputFile, toolFile):
 
 	#Loop through all parameter groups
 	for child in root.find("groups"):
-		if (child.get("name") != "Files" and child.get("name") != "Input Files"):
+		if (child.get("name") == "Files" or child.get("name") == "Input Files"):
+			for child in child:
+				if (child.find("type").text == "boolean"):
+					pName = child.get("name")
+					pType = child.find("type").text
+					pDefault = child.find("default").find("item").text
+					try:
+						pDefault = child.find("internalDefault").text
+						if (pDefault == "Computed" or "Internal Default" 
+							or "Use default range"):
+							pDefault == ""
+					except AttributeError:
+						pDefault = child.find("default").find("item").text
+
+					paramLine = '\n\t\t<param name="' + pName + \
+						'" type="' + pType + '" checked="' + \
+						pDefault.lower() + '" truevalue = "yes" falsevalue="no"/>'
+					galaxyFile.write(paramLine)
+		elif (child.get("name") != "Files" and child.get("name") != "Input Files"):
 			gName = child.get("name")
 			for child in child:
 				pName = child.get("name") #string, parameter name
@@ -314,7 +332,7 @@ def convertParams(inputFile, toolFile):
 							paramLine = '\n\t\t<param name="' + \
 								pName + '" type="' + pType + \
 								'" value="' + pDefault + \
-								'" min="' + pMin + '" max="' + pMax + '"/>'
+								'" min="' + pMin + '" max="' + pMax + '" optional="true"/>'
 						galaxyFile.write(paramLine)
 				#param type is boolean
 				elif (child.find("type").text == "boolean"):
@@ -349,35 +367,47 @@ def convertParams(inputFile, toolFile):
 				elif (child.find("type").text.lower() == "string"): 
 					pDefault = child.find("default").find("item").text
 					#Check if list exists, if so, param is a radio button list
-					try:
-						if child.find("list"):
-							paramLine = '\n\t\t<param name="' + pName + '" type="select" display="radio">'
-							galaxyFile.write(paramLine)
-							#find all list options and write them to galaxy file
-							for child in child.find("list"):
-								optionLine = ""
-								optionValue = child.get("value")
-								if optionValue == pDefault:
-									optionLine = '\n\t\t\t<option value="' + \
-										optionValue + '" selected="true">' + \
-										optionValue + '</option>'
-								else: 
-									optionLine = '\n\t\t\t<option value="' + \
-										optionValue + '">' + optionValue + '</option>' 
-								galaxyFile.write(optionLine)
-							endParamLine = '\n\t\t</param>' #End param for options
-							galaxyFile.write(endParamLine)
+					if child.find("list"):
+						paramLine = '\n\t\t<param name="' + pName + '" type="select" display="radio">'
+						galaxyFile.write(paramLine)
+						#find all list options and write them to galaxy file
+						for child in child.find("list"):
+							optionLine = ""
+							optionValue = child.get("value")
+							if optionValue == pDefault:
+								optionLine = '\n\t\t\t<option value="' + \
+									optionValue + '" selected="true">' + \
+									optionValue + '</option>'
+							else: 
+								optionLine = '\n\t\t\t<option value="' + \
+									optionValue + '">' + optionValue + '</option>' 
+							galaxyFile.write(optionLine)
+						endParamLine = '\n\t\t</param>' #End param for options
+						galaxyFile.write(endParamLine)
 						#Not a list 
-						else:
-							paramLine = '\n\t\t<param name="' + pName + '" type="text" ' + \
-								'value="' + pDefault + '"/>'
-							galaxyFile.write(paramLine)
+					else:
+						paramLine = '\n\t\t<param name="' + pName + '" type="text" ' + \
+							'value="' + pDefault + '"/>'
+						galaxyFile.write(paramLine)
+				
 					#List not found, catch 'none' type exception
-					except AttributeError:
-						pType = "text"
-						paramLine = '\n\t\t<param name="' + pName + \
-							'" type="' + pType + '" value="' + pDefault + '"/>'	
-						galaxyFile.write(paramLine)			
+					#except AttributeError:
+						#pType = "text"
+						#paramLine = '\n\t\t<param name="' + pName + \
+						#	'" type="' + pType + '" value="' + pDefault + '"/>'	
+						#galaxyFile.write(paramLine)
+				#Child type is a file input
+				elif (child.find("fileMode").text == "input"):
+					pType = "data"
+					fileType = child.find("filter").text
+					fileType = fileType.strip()
+					fileType = fileType[2:]
+					paramLine = '\n\t\t<param name="'+ pName + \
+						'" format="' + fileType + '" type="' + \
+						pType + '" label="' + pName + '=" optional="true"/>'
+					galaxyFile.write(paramLine)
+				else:
+					print pName
 	closeInput = '\n\t</inputs>'
 	galaxyFile.write(closeInput)
 	galaxyFile.close()
