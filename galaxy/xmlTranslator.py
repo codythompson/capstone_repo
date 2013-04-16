@@ -204,6 +204,8 @@ def convertInput(inputName, inputType, toolFile):
 			temp1 = temp.pop()
 			temp1 = temp1[2:]
 			curType = temp1 + ',' + temp.pop()
+
+		#skip output, process all else
 		if curName == "TO":
 			pass
 		elif curName == "FROM":
@@ -344,7 +346,7 @@ def convertParams(inputFile, toolFile):
 						pType + '" label="' + pName + '=" optional="true"/>'
 					galaxyFile.write(paramLine)
 				#param type is string
-				elif (child.find("type").text.lower() == "string"): #TODO Fix so URLs added
+				elif (child.find("type").text.lower() == "string"): 
 					pDefault = child.find("default").find("item").text
 					#Check if list exists, if so, param is a radio button list
 					try:
@@ -365,11 +367,12 @@ def convertParams(inputFile, toolFile):
 								galaxyFile.write(optionLine)
 							endParamLine = '\n\t\t</param>' #End param for options
 							galaxyFile.write(endParamLine)
+						#Not a list 
 						else:
 							paramLine = '\n\t\t<param name="' + pName + '" type="text" ' + \
 								'value="' + pDefault + '"/>'
 							galaxyFile.write(paramLine)
-					#No list, is URL
+					#List not found, catch 'none' type exception
 					except AttributeError:
 						pType = "text"
 						paramLine = '\n\t\t<param name="' + pName + \
@@ -402,6 +405,7 @@ def convertHelp(tool,toolFile):
 def toolToGalaxy():
 '''
 
+#Run tool
 createGalaxyFile()
 parseFile(sys.argv[1])
 
