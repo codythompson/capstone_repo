@@ -13,8 +13,12 @@ import sys
 #tool begin
 tool_arg_start_keyword = "start"
 
+#keywords for input and output filenames
 input_filename_key = "from"
 output_filename_key = "to"
+
+#values for args that should be removed
+none_value = "None"
 
 # arg for copying the input file to the output filename
 # used when no output file is created by the tool
@@ -60,7 +64,7 @@ def parse_args(args):
 def get_input_filename(tool_args):
     for arg in tool_args:
         split_arg = arg.split("=", 1)
-        if split_arg[0] == input_filename_key:
+        if split_arg[0].lower() == input_filename_key.lower():
             return split_arg[1]
     return None
 
@@ -68,9 +72,32 @@ def get_input_filename(tool_args):
 def get_output_filename(tool_args):
     for arg in tool_args:
         split_arg = arg.split("=", 1)
-        if split_arg[0] == output_filename_key:
+        if split_arg[0].lower() == output_filename_key.lower():
             return split_arg[1]
     return None
+
+def remove_args_with_value_none(tool_args):
+    new_args = []
+    for arg in tool_args:
+       split_arg = arg.split("=", 1) 
+       if not(len(split_arg) == 2 and split_arg[1].lower() == none_value.lower()):
+          new_args.append(arg)
+
+def remove_args_with(tool_args, remove_with_value):
+    new_args = []
+    for arg in tool_args:
+        split_arg = arg.split("=", 1)
+        if not(len(split_arg) == 2 and split_arg[1].lower() == none_value.lower()):
+            new_args.append(arg)
+    return new_args
+
+def remove_empty_args(tool_args):
+    new_args = []
+    for arg in tool_args:
+        split_arg = arg.split("=", 1)
+        if not(len(split_arg) == 2 and split_arg[1] == ""):
+            new_args.append(arg)
+    return new_args
 
 def copy_input_to_output(input_filename, output_filename):
     shutil.copyfile(input_filename, output_filename)
@@ -90,6 +117,12 @@ def main():
         sys.stderr.write("Error: Expected at least 2 arguments")
     else:
         intermediary_args, tool_args = parse_args(sys.argv[1:])
+        tool_args = remove_args_with(tool_args, none_value)
+        tool_args = remove_empty_args(tool_args)
+
+        print repr(intermediary_args)
+        print repr(tool_args)
+
         sub_proc = subprocess.Popen(tool_args)
         sub_proc.communicate()
 
@@ -101,8 +134,6 @@ def main():
         else:
             output_path = get_output_filename(tool_args)
 
-#        if not os.path.exists(output_path):
-#            rename_extra_extensions(output_path)
 #TODO Don't always rename the files with extra extensions
         rename_extra_extensions(output_path)
 

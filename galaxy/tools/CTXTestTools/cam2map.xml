@@ -1,20 +1,66 @@
 <tool id="cam2map" name="cam2map">
-  	<description>
-		Convert camera image to a map projection
- 	</description>
+   <description>
+Convert camera image to a map projection
+  </description>
 
-  	<command>cam2map from=$from map=$map to=$to</command>
+   <command>cam2map from=$from map=$map to=$to matchmap=$MATCHMAP pixres=$PIXRES</command>
 
-  	<inputs>
-    		<param name="from" format="img" type="data" label="from="/>
-		<param name="map" format="map,cub" type="data" label="map="/>
-  	</inputs>
+    <inputs>
+   	 <param name="from" format="cub" type="data" label="from="/>
+   	 <param name="map" format="map,cub" type="data" label="map="/>
+   	 <param name="MATCHMAP" type="boolean" checked="false" truevalue="yes" falsevalue="no"/>
+   	 <param name = "PIXRES" type="select" display="radio">
+   	 <!--TODO: Label options with details from cam2map GUI-->
+   		 <option value="camera" selected="true">Camera</option>
+   		 <option value="map">map</option>
+   		 <option value="mpp">MPP</option>
+   		 <option value="ppd">PPD</option>
+   	 </param>
 
-	<outputs>
-		<data name="to" format="cub" label="to="/>
-	</outputs>
+   	 <param name="DEFAULTRANGE" type="select" display="radio">
+   		 <option value="MINIMIZE" selected="true">MINIMIZE</option>
+   		 <option value="CAMERA">CAMERA</option>
+   		 <option value="MAP">MAP</option>
+   	 </param>
 
-	<help>
-		Remember to specify a .map file
-	</help>
+   	 <param name="MINLAT" type="float" value="1">
+   		 <minimum inclusive="yes">-90.0</minimum>
+   		 <maximum inclusive="yes">90.0</maximum>
+   	 </param>
+   	 <param name="MAXLAT" type="float" value="1">
+   		 <minimum inclusive="yes">-90.0</minimum>
+   		 <maximum inclusive="yes">90.0</maximum>
+   	 </param>
+   	 <param name="MINLON" type="float" value="1"/>
+   	 <param name="MAXLON" type="float" value="1"/>
+   	 <param name="TRIM" type="boolean" checked="false"/>
+
+   	 <param name="LONSEAM" type="select" display="radio">
+   		 <option value="AUTO" selected="true">AUTO</option>
+   		 <option value="ERROR">ERROR</option>
+   		 <option value="CONTINUE">CONTINUE</option>
+   	 </param>
+
+   	 <param name="INTERP" type="select" display="radio">
+   		 <option value="NEARESTNEIGHBOR">NEARESTNEIGHBOR</option>
+   		 <option value="BILINEAR">BILINEAR</option>
+   		 <option value="CUBICCONVOLUTION" selected="true">CUBICCONVOLUTION</option>
+   	 </param>
+
+   	 <param name="WARPALGORITHM" type="select" display="radio">
+   		 <option value="FORWARDPATCH">FORWARDPATCH</option>
+   		 <option value="REVERSEPATCH">REVERSEPATCH</option>
+   		 <option value="AUTOMATIC" selected="true">AUTOMATIC</option>
+   	 </param>
+
+   	 <param name="PATCHSIZE" type="integer" value="0"/>
+    </inputs>
+
+    <outputs>
+   	 <data name="to" format="cub" label="to="/>
+    </outputs>
+
+<help>
+Remember to specify a .map file
+</help>
 </tool>

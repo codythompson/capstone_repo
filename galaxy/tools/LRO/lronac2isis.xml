@@ -1,0 +1,20 @@
+<tool id="lronac2isis" name="lronac2isis">
+	<description>
+		This program takes an image from the Lunar Reconnaissance Orbiter Narrow Angle Camera
+		and produces an Isis cube containing the image data.
+	</description>
+
+   <command>lronac2isis from=$from to=$to</command>
+
+    <inputs>
+		<param name="FROM" format="img" type="data" label="FROM="/>
+    </inputs>
+
+    <outputs>
+		<data name="TO" format="cub" label="TO="/>
+    </outputs>
+
+	<help>
+		Input must be an IMG file
+	</help>
+</tool>
