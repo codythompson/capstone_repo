@@ -10,8 +10,8 @@ import os, sys, shutil
 ######
 
 # TODO: Get these strings dynamically
-target_file = "venus_base.jpg"
-category = "CTX Test Tools"
+target_file = ""
+category = ""
 destination = "galaxy/tools/" + category
 
 shutil.copy(target_file, destination + "/" + target_file)

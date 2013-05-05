@@ -9,15 +9,16 @@ This module will then add the file into Galaxy automatically.
 
 Created by Kolby Chien 27.2.2013
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-import sys
+import sys, os, shutil
 import xml.etree.ElementTree as ET
+from update_tool_conf import *
 
 #Parse ISIS XML file and generate galaxy XML file
 def parseFile(inputFile):
 	#Take the xml tree from the isis xml file and retrieve the root tag
 	tree = ET.parse(inputFile)
 	root = tree.getroot()
-	name = root.get("name")
+	name = root.get("name") + ".xml"
 
 	toolFileName = name #string file with the name of tool file
 
@@ -69,9 +70,10 @@ def parseFile(inputFile):
 				inputType = inputType[2:]
 				inputFileType.append(inputType)
 			except AttributeError:
-				inputType = child.find("type").text
-				if inputType == "cube":
+				if (child.find("type").text == "cube"):
 					inputFileType.append("cub")
+				else:
+					inputFileType.append("none")
 	convertInput(inputs, inputFileType, toolFileName)
 
 	#Convert tool parameters to Galaxy
@@ -108,10 +110,12 @@ def createGalaxyFile():
 	elif len(sys.argv) > 2:
 		print "Usage: Accepts 1 xml file"
 		exit()
-	#Create file name by stripping off .xml from isis file
+	#Create file name in file, but with .gal extension
 	else:
-		outputFile = sys.argv[1]
-		outputFile = outputFile[:-4]
+		inputPath = sys.argv[1]
+		outputFile = os.path.split(inputPath)
+		outputFile = outputFile[1]
+
 		galaxyFile = open(outputFile, "w")
 		galaxyFile.close()
 			
@@ -209,13 +213,21 @@ def convertInput(inputName, inputType, toolFile):
 		if curName == "TO":
 			pass
 		elif curName == "FROM":
-			inputs = '\n\t\t<param name="input" format="' + \
-				curType + '" type="data" label="' + curName + '="/>'
+			if(curType == "none"):
+				inputs = '\n\t\t<param name="input" type="data" label="' + curName + '="/>'
+			else:
+				inputs = '\n\t\t<param name="input" format="' + \
+					curType + '" type="data" label="' + curName + '="/>'
 			galaxyFile.write(inputs)
 		else:
-			inputs = '\n\t\t<param name="' + curName + \
-				'" format="' + curType + '" type="data" label="' + \
-				curName + '=" optional="true"/>' 
+			if(curType == "none"):
+				inputs = '\n\t\t<param name="' + curName + \
+					'" type="data" label="' + \
+					curName + '=" optional="true"/>' 
+			else:
+				inputs = '\n\t\t<param name="' + curName + \
+					'" format="' + curType + '" type="data" label="' + \
+					curName + '=" optional="true"/>' 
 			galaxyFile.write(inputs)		
 	galaxyFile.close()
 
@@ -344,10 +356,15 @@ def convertParams(inputFile, toolFile):
 							pDefault == ""
 					except AttributeError:
 						pDefault = child.find("default").find("item").text
-
-					paramLine = '\n\t\t<param name="' + pName + \
-						'" type="' + pType + '" checked="' + \
-						pDefault.lower() + '" truevalue = "yes" falsevalue="no"/>'
+					
+					if pDefault.lower() == "true":
+						paramLine = '\n\t\t<param name="' + pName + \
+							'" type="' + pType + '" checked="' + \
+							pDefault.lower() + '" truevalue = "none" falsevalue="no"/>'
+					else:
+						paramLine = '\n\t\t<param name="' + pName + \
+							'" type="' + pType + '" checked="' + \
+							pDefault.lower() + '" truevalue = "yes" falsevalue="none"/>'
 					galaxyFile.write(paramLine)
 				#param type is file
 				elif (child.find("type").text == "filename"):
@@ -429,14 +446,40 @@ def convertHelp(tool,toolFile):
 	galaxyFile.write(help)
 	galaxyFile.close()
 
-'''
+
 #Add tool to galaxy.
 #Done after parsing
 def toolToGalaxy():
-'''
+	inputFile = os.path.split(sys.argv[1])
+	galXMLFile = inputFile[1]
+	destination = "tools/ISISTools"
+	script = "isisToolExecutor.py"
+	isisTool = "/isis3/isis/bin/" + galXMLFile[:-4]
+
+	if not os.path.exists(destination):
+		os.mkdir(destination)
+		shutil.copy(script,destination)
+	shutil.copy(galXMLFile, destination)
+	shutil.copy(isisTool, destination)
+
+	tree = ET.parse(sys.argv[1])
+	root = tree.getroot()
+	
+	#Get all categories for that tool
+	for child in root.find("category"):
+		category = (child.text).replace(' ','_')
+		intoToolConf(galXMLFile,category)
+		
+
+	os.remove(galXMLFile)
+
+
 
 #Run tool
-createGalaxyFile()
-parseFile(sys.argv[1])
+def main():
+	createGalaxyFile()
+	parseFile(sys.argv[1])
+	toolToGalaxy()
+main()
 
 	

@@ -7,12 +7,8 @@ This file currently uses a hard-coded filename and XML filepath.
 These all need to be retrieved dynamically based on the file passed in to the XML Translator.
 '''
 
-# TODO: Get these strings dynamically
-filename = "galaxy/tool_conf.xml"
+filename = "tool_conf.xml"
 tool_conf = open(filename, "r+")
-category = "CTX Test Tools"
-category_found = False
-xml_file = "../../xml/appjit.xml"
 
 '''
 This function 'inserts' a string into the tool_conf file by renaming the file (appending
@@ -37,65 +33,46 @@ def insert(str):
 	# If everything completes successfully, remove the backup file
 	os.remove(filename + ".bak")
 
-'''
-This function retrieves tool category from the XML file specified by 'str'
-'''
-def get_category(str):
-	with open("../../xml/"+str, "r") as orig_xml:
-		found = False
-		for line in orig_xml:
-			# Check for categoryItem tag
-			if line.find("<categoryItem>") != -1:
-				# Strip the tags and set the category
-				category = line.strip()[14:-15]
-				found = True
-			# Check for missionItem tag
-			elif line.find("<missionItem>") != -1:
-				# Strip the tags and set the category
-				category = line.strip()[13:-14]
-				found = True
-		# If no categorization string is found in the file...
-		if found == False:
-			print("No category found for " + str + ".")
+def intoToolConf(xml_file, category):
+	category_found = False
+	# Search the tool_conf file to determine whether the tool already exists in it
+	for line in tool_conf:
+		# If it does, print a message, close the file and exit
+		if line.find(xml_file) != -1:
+			category_found = True
+			print("Tool '" + xml_file + "' already exists in tool_conf.xml")
+			tool_conf.close()
+			sys.exit()
 
-# Search the tool_conf file to determine whether the tool already exists in it
-for line in tool_conf:
-	# If it does, print a message, close the file and exit
-	if line.find(xml_file) != -1:
-		category_found = True
-		print("Tool '" + xml_file + "' already exists in tool_conf.xml")
-		tool_conf.close()
-		sys.exit()
-
-tool_conf.seek(0)
+	tool_conf.seek(0)
 
 
-# Search line-by-line for the specified category in the tool_conf file
-for line in tool_conf:
-	# If the line contains the category name...
-	if line.find(category) != -1:
-		category_found = True
-		print("Inserting '" + xml_file + "' in category '" + category + "'")
-		tool_conf.close()
-		# Call the insert method, passing the XML filename
-		insert("\t\t<tool file=\"" + xml_file + "\"/>\n")
-		break
+	# Search line-by-line for the specified category in the tool_conf file
+	for line in tool_conf:
+		# If the line contains the category name...
+		if line.find(category) != -1:
+			category_found = True
+			print("Inserting '" + xml_file + "' in category '" + category + "'")
+			tool_conf.close()
+			# Call the insert method, passing the XML filename
+			insert("\t\t<tool file=\"" + xml_file + "\"/>\n")
+			break
 
-# If the category doesn't already exist...
-if category_found == False:
-	# Create an ID using the category name, by replacing spaces with underscores
-	category_id = ""
-	for char in category:
-		if char == ' ':
-			category_id += '_'
-		else:
-			category_id += char
+	# If the category doesn't already exist...
+	if (category_found == False):
+		# Create an ID using the category name, by replacing spaces with underscores
+		category_id = ""
+		for char in category:
+			if char == ' ':
+				category_id += '_'
+			else:
+				category_id += char
 
-	# Jump to the end of the file and create the new category
-	tool_conf.seek(-11,2)
-	tool_conf.write("\n\t<section name=\"" + category + "\" " + "id=\"" + category_id + "\">")
-	tool_conf.write("\n\t\t<tool file=\"" + xml_file + "\"/>")
-	tool_conf.write("\n\t</section>")
-	tool_conf.write("\n</toolbox>")
+		# Jump to the end of the file and create the new category
+		tool_conf.seek(-11,2)
+		tool_conf.write("\n\t<section name=\"" + category + "\" " + "id=\"" + category_id + "\">")
+		tool_conf.write("\n\t\t<tool file=\"" "ISISTools/"+ xml_file + "\"/>")
+		tool_conf.write("\n\t</section>")
+		tool_conf.write("\n</toolbox>")
 
-tool_conf.close()
+	tool_conf.close()
