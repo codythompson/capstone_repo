@@ -1,0 +1,40 @@
+<tool id="spiceinit.xml" name="spiceinit.xml">
+	<description>Determine SPICE kernels for a camera cube</description>
+	<command interpreter="python">isisToolExecutor.py in_is_out=true to=$output start spiceinit FROM=$input WEB=$WEB ATTACH=$ATTACH CKSMITHED=$CKSMITHED CKRECON=$CKRECON CKPREDICTED=$CKPREDICTED CKNADIR=$CKNADIR SPKSMITHED=$SPKSMITHED SPKRECON=$SPKRECON SPKPREDICTED=$SPKPREDICTED LS=$LS PCK=$PCK TSPK=$TSPK IK=$IK SCLK=$SCLK CK=$CK FK=$FK SPK=$SPK IAK=$IAK EXTRA=$EXTRA SHAPE=$SHAPE MODEL=$MODEL STARTPAD=$STARTPAD ENDPAD=$ENDPAD URL=$URL PORT=$PORT </command>
+	<inputs>
+		<param name="input" format="cub" type="data" label="FROM="/>
+		<param name="WEB" type="boolean" checked="false" truevalue = "yes" falsevalue="none"/>
+		<param name="ATTACH" type="boolean" checked="true" truevalue = "none" falsevalue="no"/>
+		<param name="CKSMITHED" type="boolean" checked="false" truevalue = "yes" falsevalue="none"/>
+		<param name="CKRECON" type="boolean" checked="true" truevalue = "none" falsevalue="no"/>
+		<param name="CKPREDICTED" type="boolean" checked="false" truevalue = "yes" falsevalue="none"/>
+		<param name="CKNADIR" type="boolean" checked="false" truevalue = "yes" falsevalue="none"/>
+		<param name="SPKSMITHED" type="boolean" checked="false" truevalue = "yes" falsevalue="none"/>
+		<param name="SPKRECON" type="boolean" checked="true" truevalue = "none" falsevalue="no"/>
+		<param name="SPKPREDICTED" type="boolean" checked="false" truevalue = "yes" falsevalue="none"/>
+		<param name="LS" format="tls" type="data" label="LS=" optional="true"/>
+		<param name="PCK" format="tpc" type="data" label="PCK=" optional="true"/>
+		<param name="TSPK" format="bsp" type="data" label="TSPK=" optional="true"/>
+		<param name="IK" format="ti" type="data" label="IK=" optional="true"/>
+		<param name="SCLK" format="tsc" type="data" label="SCLK=" optional="true"/>
+		<param name="CK" format="bc" type="data" label="CK=" optional="true"/>
+		<param name="FK" format="tf" type="data" label="FK=" optional="true"/>
+		<param name="SPK" format="bsp" type="data" label="SPK=" optional="true"/>
+		<param name="IAK" format="ti" type="data" label="IAK=" optional="true"/>
+		<param name="EXTRA" format="" type="data" label="EXTRA=" optional="true"/>
+		<param name="SHAPE" type="select" display="radio">
+			<option value="ELLIPSOID">ELLIPSOID</option>
+			<option value="SYSTEM" selected="true">SYSTEM</option>
+			<option value="USER">USER</option>
+		</param>
+		<param name="MODEL" format="cub" type="data" label="MODEL=" optional="true"/>
+		<param name="STARTPAD" type="float" value="0.0" min="0.0"/>
+		<param name="ENDPAD" type="float" value="0.0" min="0.0"/>
+		<param name="URL" type="text" value="http://services.isis.astrogeology.usgs.gov/cgi-bin/spiceinit.cgi"/>
+		<param name="PORT" type="integer" value="80" min="0"/>
+	</inputs>
+	<outputs>
+		<data format="cub" name="output" label="to"/>
+	</outputs>
+	<help>isis.astrogeology.usgs.gov/Application/presentation/Tabbed/spiceinit.xml/spiceinit.xml.html</help>
+</tool>

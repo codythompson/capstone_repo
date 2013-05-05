@@ -1,0 +1,46 @@
+<tool id="cam2map.xml" name="cam2map.xml">
+	<description>Convert camera image to a map projection</description>
+	<command interpreter="python">isisToolExecutor.py cam2map FROM=$input MAP=$MAP TO=$output MATCHMAP=$MATCHMAP PIXRES=$PIXRES RESOLUTION=$RESOLUTION DEFAULTRANGE=$DEFAULTRANGE MINLAT=$MINLAT MAXLAT=$MAXLAT MINLON=$MINLON MAXLON=$MAXLON TRIM=$TRIM LONSEAM=$LONSEAM INTERP=$INTERP WARPALGORITHM=$WARPALGORITHM PATCHSIZE=$PATCHSIZE </command>
+	<inputs>
+		<param name="input" format="cub" type="data" label="FROM="/>
+		<param name="MAP" format="cub,map" type="data" label="MAP=" optional="true"/>
+		<param name="MATCHMAP" type="boolean" checked="false" truevalue = "yes" falsevalue="no"/>
+		<param name="PIXRES" type="select" display="radio">
+			<option value="CAMERA" selected="true">CAMERA</option>
+			<option value="MAP">MAP</option>
+			<option value="MPP">MPP</option>
+			<option value="PPD">PPD</option>
+		</param>
+		<param name="RESOLUTION" type="float" min="0.0" optional="true"/>
+		<param name="DEFAULTRANGE" type="select" display="radio">
+			<option value="MINIMIZE" selected="true">MINIMIZE</option>
+			<option value="CAMERA">CAMERA</option>
+			<option value="MAP">MAP</option>
+		</param>
+		<param name="MINLAT" type="float" min="-90.0" max="90.0" optional="true"/>
+		<param name="MAXLAT" type="float" min="-90.0" max="90.0" optional="true"/>
+		<param name="MINLON" type="float" optional="true"/>
+		<param name="MAXLON" type="float" optional="true"/>
+		<param name="TRIM" type="boolean" checked="false" truevalue = "yes" falsevalue="none"/>
+		<param name="LONSEAM" type="select" display="radio">
+			<option value="AUTO" selected="true">AUTO</option>
+			<option value="ERROR">ERROR</option>
+			<option value="CONTINUE">CONTINUE</option>
+		</param>
+		<param name="INTERP" type="select" display="radio">
+			<option value="NEARESTNEIGHBOR">NEARESTNEIGHBOR</option>
+			<option value="BILINEAR">BILINEAR</option>
+			<option value="CUBICCONVOLUTION" selected="true">CUBICCONVOLUTION</option>
+		</param>
+		<param name="WARPALGORITHM" type="select" display="radio">
+			<option value="FORWARDPATCH">FORWARDPATCH</option>
+			<option value="REVERSEPATCH">REVERSEPATCH</option>
+			<option value="AUTOMATIC" selected="true">AUTOMATIC</option>
+		</param>
+		<param name="PATCHSIZE" type="integer" min="1" optional="true"/>
+	</inputs>
+	<outputs>
+		<data format="cub" name="output" label="to"/>
+	</outputs>
+	<help>isis.astrogeology.usgs.gov/Application/presentation/Tabbed/cam2map.xml/cam2map.xml.html</help>
+</tool>
