@@ -35,30 +35,30 @@ in_is_out_value_true = "true"
 #functions
 #
 def print_error(message, exit_after = False, exit_code = 1):
-"""
-writes 'message' to standard-error
-if 'exit_after' is true, will exit with the code
-supplied by 'exit_code'
-"""
+    """
+    writes 'message' to standard-error
+    if 'exit_after' is true, will exit with the code
+    supplied by 'exit_code'
+    """
     sys.stderr.write(sys.argv[0] + " - ERROR: " + message + "\n")
     if exit_after:
         exit(exit_code)
 
 def contains_intermediary_args(args):
-"""
-checks the arg list for the existence of the keyword used for separating
-arguments for isisToolExecutor.py and arguments for the actual ISIS tool
-"""
+    """
+    checks the arg list for the existence of the keyword used for separating
+    arguments for isisToolExecutor.py and arguments for the actual ISIS tool
+    """
     for arg in args:
         if arg == tool_arg_start_keyword:
             return True
     return False
 
 def parse_args(args):
-"""
-returns a dictionary of arguments meant for this script (isisToolExecutor.py)
-and a list of ISIS tool name and arguments for that tool
-"""
+    """
+    returns a dictionary of arguments meant for this script (isisToolExecutor.py)
+    and a list of ISIS tool name and arguments for that tool
+    """
     # if no start keyword - use all command line args for the tool
     if not contains_intermediary_args(args):
         return {}, args
@@ -80,10 +80,10 @@ and a list of ISIS tool name and arguments for that tool
     return intermediary_args, tool_args
 
 def get_input_filename(tool_args):
-"""
-finds the input filename in the supplied ISIS tool arguments
-Uses the label 'from='.
-"""
+    """
+    finds the input filename in the supplied ISIS tool arguments
+    Uses the label 'from='.
+    """
     for arg in tool_args:
         split_arg = arg.split("=", 1)
         if split_arg[0].lower() == input_filename_key.lower():
@@ -91,10 +91,10 @@ Uses the label 'from='.
     return None
 
 def get_output_filename(tool_args):
-"""
-finds the output filename in the supplied ISIS tool arguments
-Uses the label 'to='.
-"""
+    """
+    finds the output filename in the supplied ISIS tool arguments
+    Uses the label 'to='.
+    """
     for arg in tool_args:
         split_arg = arg.split("=", 1)
         if split_arg[0].lower() == output_filename_key.lower():
@@ -102,14 +102,14 @@ Uses the label 'to='.
     return None
 
 def remove_args_with(tool_args, remove_with_value):
-"""
-Returns a list of ISIS tool args where all occurences of args whose value is
-'remove_with_value' are removed.
-Example, supplying the following as 'tool_args', and 'None' as 'remove_with_value'
-['ctxcal', 'from=dataset_100.dat', 'to=dataset_101.dat', 'flatfile=None', 'iof=true']
-would result in the following
-['ctxcal', 'from=dataset_100.dat', 'to=dataset_101.dat', 'iof=true']
-"""
+    """
+    Returns a list of ISIS tool args where all occurences of args whose value is
+    'remove_with_value' are removed.
+    Example, supplying the following as 'tool_args', and 'None' as 'remove_with_value'
+    ['ctxcal', 'from=dataset_100.dat', 'to=dataset_101.dat', 'flatfile=None', 'iof=true']
+    would result in the following
+    ['ctxcal', 'from=dataset_100.dat', 'to=dataset_101.dat', 'iof=true']
+    """
     new_args = []
     for arg in tool_args:
         split_arg = arg.split("=", 1)
@@ -118,14 +118,14 @@ would result in the following
     return new_args
 
 def remove_empty_args(tool_args):
-"""
-Returns a list of ISIS tool args where all occurences of args whose value is
-empty are removed.
-Example, supplying the following as 'tool_args'
-['ctxcal', 'from=dataset_100.dat', 'to=dataset_101.dat', 'flatfile=""', 'iof=true']
-would result in the following
-['ctxcal', 'from=dataset_100.dat', 'to=dataset_101.dat', 'iof=true']
-"""
+    """
+    Returns a list of ISIS tool args where all occurences of args whose value is
+    empty are removed.
+    Example, supplying the following as 'tool_args'
+    ['ctxcal', 'from=dataset_100.dat', 'to=dataset_101.dat', 'flatfile=""', 'iof=true']
+    would result in the following
+    ['ctxcal', 'from=dataset_100.dat', 'to=dataset_101.dat', 'iof=true']
+    """
     new_args = []
     for arg in tool_args:
         split_arg = arg.split("=", 1)
@@ -134,25 +134,25 @@ would result in the following
     return new_args
 
 def copy_input_to_output(input_filename, output_filename):
-"""
-Just copies a file to a new filename.
-Used for spiceinit and similar tools that do not have a way to specify an
-output filename. (Galaxy requires an output file be generated to function
-properly)
-"""
+    """
+    Just copies a file to a new filename.
+    Used for spiceinit and similar tools that do not have a way to specify an
+    output filename. (Galaxy requires an output file be generated to function
+    properly)
+    """
     shutil.copyfile(input_filename, output_filename)
 
 #TODO don't copy all instances to the same 
 def rename_extra_extensions(file_path,
         delete_files_with_extra_extensions = True):
-"""
-Finds files that start with 'file_path' but have extra extensions appended
-to the file name, and copy those files to the file name specified by 'file_path'
-
-if 'delete_files_with_extra_extensions' is true - will delete all instances
-of files found with extra extensions after they have been copied to the
-appropriate filename.
-"""
+    """
+    Finds files that start with 'file_path' but have extra extensions appended
+    to the file name, and copy those files to the file name specified by 'file_path'
+    
+    if 'delete_files_with_extra_extensions' is true - will delete all instances
+    of files found with extra extensions after they have been copied to the
+    appropriate filename.
+    """
     extra_files = glob.glob(file_path + ".*")
     if len(extra_files) > 0:
         shutil.copyfile(extra_files[0], file_path)
