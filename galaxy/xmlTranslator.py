@@ -471,7 +471,6 @@ def toolToGalaxy():
 	galXMLFile = inputFile[1] #user file
 	destination = "tools/ISISTools" #directory file installed to
 	script = "isisToolExecutor.py" #Name of the intermediary script
-	isisTool = "/isis3/isis/bin/" + galXMLFile[:-4] #ISIS tool location
 
 	#Check to see if the ISISTools directory exists, if
 	#not, create it and add in the intermediary script
@@ -480,7 +479,6 @@ def toolToGalaxy():
 		shutil.copy(script,destination)
 	#Copy Galaxy XML file and isis tool to directory
 	shutil.copy(galXMLFile, destination) 
-	shutil.copy(isisTool, destination)
 
 	#Get xml tree from ISIS xml file to searcy for category
 	tree = ET.parse(sys.argv[1])
