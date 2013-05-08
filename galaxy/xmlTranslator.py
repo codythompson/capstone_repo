@@ -134,8 +134,13 @@ def createGalaxyFile():
 		outputFile = os.path.split(inputPath)
 		outputFile = outputFile[1]
 
-		galaxyFile = open(outputFile, "w")
-		galaxyFile.close()
+		tree = ET.parse(inputPath)
+		root = tree.getRoot()
+		if (root.lower() is not "application"):
+			exit(42)
+		else:
+			galaxyFile = open(outputFile, "w")
+			galaxyFile.close()
 			
 
 
@@ -497,7 +502,10 @@ def toolToGalaxy():
 
 #Run tool
 def main():
-	createGalaxyFile()
-	parseFile(sys.argv[1])
-	toolToGalaxy()
+	try:
+		createGalaxyFile()
+		parseFile(sys.argv[1])
+		toolToGalaxy()
+	except:
+		exit(43)
 main()
