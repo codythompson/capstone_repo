@@ -16,6 +16,7 @@ filename, since Python doesn't support actual insertion
 '''
 def insert(str,category):
 	# Move original tool_conf.xml to tool_conf.xml.bak
+	filename = "tool_conf.xml"
 	os.rename(filename, filename + ".bak")
 	with open(filename + ".bak") as backup:
 		# Re-write tool_conf.xml
