@@ -135,8 +135,8 @@ def createGalaxyFile():
 		outputFile = outputFile[1]
 
 		tree = ET.parse(inputPath)
-		root = tree.getRoot()
-		if (root.lower() is not "application"):
+		root = tree.getroot()
+		if (root.get("name").lower() is not "application"):
 			exit(42)
 		else:
 			galaxyFile = open(outputFile, "w")
