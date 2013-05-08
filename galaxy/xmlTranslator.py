@@ -45,13 +45,31 @@ def parseFile(inputFile):
 		inputName = child.get("name")
 		inputs.append(inputName)
 
+	exclusions = {}
 	#Get param names for all other parameter groups for command line
 	for child in root.find("groups"):
 		if (child.get("name") != "Files" and child.get("name") != "Input Files"):
 			for child in child:
 				paramName = child.get("name")
 				params.append(paramName)
-	comLine(name, toolFileName, inputs, params, outputPresent) 
+				exclusionList = ""
+				if child.find("exclusions"):
+					for item in child.find("exclusions"):
+						if exclusionList == "":
+							exclusionList = item.text
+						else:
+							exclusionList = exclusionList + "," + item.text
+					exclusions[paramName] = exclusionList
+				elif child.find("list"):
+					for child in child.find("list"):
+						if child.find("exclusions"):
+							for item in child.find("exclusions"):
+								if exclusionList == "":
+									exclusionList = item.text
+								else:
+									exclusionList = exclusionList + "," + item.text
+							exclusions[paramName] = exclusionList
+	comLine(name, toolFileName, inputs, params, outputPresent, exclusions) 
 
 	#Convert isis inputs to galaxy format
 	inputs = [] #array containing all param names under "Files" group
@@ -140,7 +158,7 @@ def toolDescribe(text, toolFile):
 
 #Convert Command Line
 #TODO add parameter functions and fix if statement to check for output
-def comLine(name, toolFile, inputs, params, outputPresent):
+def comLine(name, toolFile, inputs, params, outputPresent, exclusions):
 	#compile inputs and output files for command line
 	inputString = ""
 	#reverse list to pop first argument off first
@@ -166,14 +184,24 @@ def comLine(name, toolFile, inputs, params, outputPresent):
 		temp = params.pop()
 		paramString += temp + "=$" + temp + ' '
 
+	#compile exclusion lists and arguments
+	exclusionString = ""
+	tempKey = exclusions.keys()
+	tempVals = exclusions.values()
+	i = 0
+	while (i < len(tempKey)):
+		exclusionString = exclusionString + 'exclusion="' + tempKey[i] + '=yes" ' + \
+			 tempKey[i] + '="' + tempVals[i] + '" ' 
+		i += 1
+
 	#If there is a not a "TO" section, execute extra parameters 
 	#in isisToolExecutor.py and then append inputs and params
 	if outputPresent is 1:
-		comLine = '\n\t<command interpreter="python">isisToolExecutor.py in_is_out=true to=$output start ' + \
-			 name + ' ' + inputString + paramString + '</command>'
+		comLine = '\n\t<command interpreter="python">isisToolExecutor.py in_is_out=true to=$output ' + \
+			exclusionString + 'start ' + name[:-4] + ' ' + inputString + paramString + '</command>'
 	else:
-		comLine = '\n\t<command interpreter="python">isisToolExecutor.py ' + \
-			name + ' ' + inputString + paramString + '</command>'
+		comLine = '\n\t<command interpreter="python">isisToolExecutor.py ' + exclusionString + 'start ' + \
+			name[:-4] + ' ' + inputString + paramString + '</command>'
 	galaxyFile = open(toolFile, "a")
 	galaxyFile.write(comLine)
 	galaxyFile.close()
@@ -213,6 +241,7 @@ def convertInput(inputName, inputType, toolFile):
 		if curName == "TO":
 			pass
 		elif curName == "FROM":
+			#If input does not have a "filter" tag, leave out a format
 			if(curType == "none"):
 				inputs = '\n\t\t<param name="input" type="data" label="' + curName + '="/>'
 			else:
@@ -220,6 +249,7 @@ def convertInput(inputName, inputType, toolFile):
 					curType + '" type="data" label="' + curName + '="/>'
 			galaxyFile.write(inputs)
 		else:
+			#If input does not have a "filter" tag, leave out a format
 			if(curType == "none"):
 				inputs = '\n\t\t<param name="' + curName + \
 					'" type="data" label="' + \
@@ -356,15 +386,9 @@ def convertParams(inputFile, toolFile):
 							pDefault == ""
 					except AttributeError:
 						pDefault = child.find("default").find("item").text
-					
-					if pDefault.lower() == "true":
-						paramLine = '\n\t\t<param name="' + pName + \
-							'" type="' + pType + '" checked="' + \
-							pDefault.lower() + '" truevalue = "none" falsevalue="no"/>'
-					else:
-						paramLine = '\n\t\t<param name="' + pName + \
-							'" type="' + pType + '" checked="' + \
-							pDefault.lower() + '" truevalue = "yes" falsevalue="none"/>'
+					paramLine = '\n\t\t<param name="' + pName + \
+						'" type="' + pType + '" checked="' + \
+						pDefault.lower() + '" truevalue = "yes" falsevalue="no"/>'
 					galaxyFile.write(paramLine)
 				#param type is file
 				elif (child.find("type").text == "filename"):
@@ -406,13 +430,6 @@ def convertParams(inputFile, toolFile):
 						paramLine = '\n\t\t<param name="' + pName + '" type="text" ' + \
 							'value="' + pDefault + '"/>'
 						galaxyFile.write(paramLine)
-				
-					#List not found, catch 'none' type exception
-					#except AttributeError:
-						#pType = "text"
-						#paramLine = '\n\t\t<param name="' + pName + \
-						#	'" type="' + pType + '" value="' + pDefault + '"/>'	
-						#galaxyFile.write(paramLine)
 				#Child type is a file input
 				elif (child.find("fileMode").text == "input"):
 					pType = "data"
@@ -450,27 +467,32 @@ def convertHelp(tool,toolFile):
 #Add tool to galaxy.
 #Done after parsing
 def toolToGalaxy():
-	inputFile = os.path.split(sys.argv[1])
-	galXMLFile = inputFile[1]
-	destination = "tools/ISISTools"
-	script = "isisToolExecutor.py"
-	isisTool = "/isis3/isis/bin/" + galXMLFile[:-4]
+	inputFile = os.path.split(sys.argv[1]) #user input
+	galXMLFile = inputFile[1] #user file
+	destination = "tools/ISISTools" #directory file installed to
+	script = "isisToolExecutor.py" #Name of the intermediary script
+	isisTool = "/isis3/isis/bin/" + galXMLFile[:-4] #ISIS tool location
 
+	#Check to see if the ISISTools directory exists, if
+	#not, create it and add in the intermediary script
 	if not os.path.exists(destination):
 		os.mkdir(destination)
 		shutil.copy(script,destination)
-	shutil.copy(galXMLFile, destination)
+	#Copy Galaxy XML file and isis tool to directory
+	shutil.copy(galXMLFile, destination) 
 	shutil.copy(isisTool, destination)
 
+	#Get xml tree from ISIS xml file to searcy for category
 	tree = ET.parse(sys.argv[1])
 	root = tree.getroot()
 	
-	#Get all categories for that tool
+	#Get all categories for that tool and install into tool_conf.xml
 	for child in root.find("category"):
 		category = (child.text).replace(' ','_')
 		intoToolConf(galXMLFile,category)
 		
-
+	#Finish by removing the duplicate Galaxy XML file left
+	#in the main galaxy folder
 	os.remove(galXMLFile)
 
 
@@ -481,5 +503,3 @@ def main():
 	parseFile(sys.argv[1])
 	toolToGalaxy()
 main()
-
-	
