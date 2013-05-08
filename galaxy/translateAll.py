@@ -1,6 +1,7 @@
 import sys
-import fnmatch
+import fmatch
 import os
+import subprocess
 
 def recursively_find_matching_files(root_dir, matchby):
     """
@@ -20,14 +21,25 @@ def recursively_find_matching_files(root_dir, matchby):
             matches.append(root + '/' + filename)
     return matches
 
-#MAIN
-files_to_find = sys.argv[1:]
-root_dir = os.getcwd()
+def main():
+    files_to_find = sys.argv[1:]
+    cwd = os.getcwd()
 
-#for name/wildcard provided on the command line,
-#find paths for that/those file(s)
-paths = []
-for filename in files_to_find:
-    paths.extend(recursively_find_matching_files(root_dir, filename))
+    paths = []
+    for filename in files_to_find:
+        if os.path.split(filename)[0] == "":
+            root_dir = cwd
+        else:
+            root_dir = filename[0]
+            filename = filename[1]
+        paths.extend(recursively_find_matching_files(root_dir, filename)
 
-print repr(paths)
+    for path in paths:
+        print "Translating: %s" % path
+        args = ["python", "xmlTranslator.py", path]
+        sub_proc = subprocess.Popen(args)
+        subprocess.communicate()
+        print "Finsihed translating %s" % path
+
+if __name__ == "__main__":
+    main()
