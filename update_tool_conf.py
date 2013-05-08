@@ -7,15 +7,14 @@ This file currently uses a hard-coded filename and XML filepath.
 These all need to be retrieved dynamically based on the file passed in to the XML Translator.
 '''
 
-filename = "tool_conf.xml"
-tool_conf = open(filename, "r+")
+
 
 '''
 This function 'inserts' a string into the tool_conf file by renaming the file (appending
 '.bak' to preserve the file in case of errors) and then re-writing with the original
 filename, since Python doesn't support actual insertion
 '''
-def insert(str):
+def insert(str,category):
 	# Move original tool_conf.xml to tool_conf.xml.bak
 	os.rename(filename, filename + ".bak")
 	with open(filename + ".bak") as backup:
@@ -34,6 +33,8 @@ def insert(str):
 	os.remove(filename + ".bak")
 
 def intoToolConf(xml_file, category):
+	filename = "tool_conf.xml"
+	tool_conf = open(filename, "r+")
 	category_found = False
 	# Search the tool_conf file to determine whether the tool already exists in it
 	for line in tool_conf:
@@ -55,7 +56,7 @@ def intoToolConf(xml_file, category):
 			print("Inserting '" + xml_file + "' in category '" + category + "'")
 			tool_conf.close()
 			# Call the insert method, passing the XML filename
-			insert("\t\t<tool file=\"" + xml_file + "\"/>\n")
+			insert("\t\t<tool file=\"ISISTools/" + xml_file + "\"/>\n",category)
 			break
 
 	# If the category doesn't already exist...
