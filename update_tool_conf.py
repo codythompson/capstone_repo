@@ -44,7 +44,7 @@ def intoToolConf(xml_file, category):
 			category_found = True
 			print("Tool '" + xml_file + "' already exists in tool_conf.xml")
 			tool_conf.close()
-			sys.exit()
+			return
 
 	tool_conf.seek(0)
 

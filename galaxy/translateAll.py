@@ -24,6 +24,9 @@ def recursively_find_matching_files(root_dir, matchby):
             matches.append(root + '/' + filename)
     return matches
 
+def print_to_file(f, string):
+    f.write(string + "\n")
+
 def main():
     files_to_find = sys.argv[1:]
     cwd = os.getcwd()
@@ -38,34 +41,53 @@ def main():
             filename = filename[1]
         paths.extend(recursively_find_matching_files(root_dir, filename))
 
+    successful_list = []
     missing_app_list = []
     gen_error_list = []
 
     for path in paths:
-        print "Translating: %s" % path
+#        print "Translating: %s" % path
         args = ["python", "xmlTranslator.py", path]
         sub_proc = subprocess.Popen(args)
         sub_proc.communicate()
         if sub_proc.returncode == missing_application_tag_code:
             missing_app_list.append(path)
-            print "ERROR: The XML file %s was missing the application tag and could not be translated!" % path
+#            print "ERROR: The XML file %s was missing the application tag and could not be translated!" % path
         elif sub_proc.returncode == general_translation_error_code:
             gen_error_list.append(path)
-            print "ERROR: There was an error translating the XML file: %s, this file could not be translated!" % path
+#            print "ERROR: There was an error translating the XML file: %s, this file could not be translated!" % path
+        elif sub_proc.returncode == 0:
+            successful_list.append(path)
+        else:
+            gen_error_list.append(path)
+#            print "ERROR: There was an error translating the XML file: %s, this file could not be translated!" % path
+    
+    f = open("translation_results.txt", "w")
 
-    print "============================================================"
-    print "The following files could NOT be translated."
-    print "These files were missing the 'application' tag."
-    print "------------------------------------------------------------"
-    for path in missing_app_list:
-        print path
+    if len(successful_list) > 0:
+        print_to_file(f, "============================================================")
+        print_to_file(f, "The following %i files were successfully translated." % len(successful_list))
+        print_to_file(f, "------------------------------------------------------------")
+        for path in successful_list:
+            print_to_file(f, path)
 
-    print "============================================================"
-    print "The following files could NOT be translated."
-    print "The translater encountered an exception while translating them."
-    print "------------------------------------------------------------"
-    for path in gen_error_list:
-        print path
+    if len(missing_app_list) > 0:
+        print_to_file(f, "============================================================")
+        print_to_file(f, "The following %i files could NOT be translated." % len(missing_app_list))
+        print_to_file(f, "These files were missing the 'application' tag.")
+        print_to_file(f, "------------------------------------------------------------")
+        for path in missing_app_list:
+            print_to_file(f, path)
+
+    if len(gen_error_list) > 0:
+        print_to_file(f, "============================================================")
+        print_to_file(f, "The following %i files could NOT be translated." % len(gen_error_list))
+        print_to_file(f, "The translater encountered an exception while translating them.")
+        print_to_file(f, "------------------------------------------------------------")
+        for path in gen_error_list:
+            print_to_file(f, path)
+
+    f.close()
 
 if __name__ == "__main__":
     main()
