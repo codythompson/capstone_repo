@@ -1,3 +1,16 @@
+"""
+isisToolExecutor.py
+
+Serves as an interface between ISIS and Galaxy
+
+Performs any formatting necessary to command line args.
+Executes specified ISIS tool.
+Renames file extensions to what Galaxy specifies.
+
+By: Cody Thompson (cody.thompson22@gmail.com)
+Last Updated: 5/9/2013
+"""
+
 import glob
 import os
 import shutil
