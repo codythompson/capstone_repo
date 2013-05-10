@@ -49,23 +49,21 @@ def print_error(message, exit_after = False, exit_code = 1):
     if exit_after:
         exit(exit_code)
 
-def contains_intermediary_args(args):
-    """
-    checks the arg list for the existence of the keyword used for separating
-    arguments for isisToolExecutor.py and arguments for the actual ISIS tool
-    """
-    for arg in args:
-        if arg == tool_arg_start_keyword:
-            return True
-    return False
-
 def split_args(args):
+    """
+    Splits the arguments into arguments used for this script and arguments
+    used for the actual ISIS tool.
+    The args are split around the 'start' keyword
+    """
     for i in range(len(args)):
         if args[i] == tool_arg_start_keyword:
             return args[:i], args[i + 1:]
     return [], args
 
 def parse_inter_args(inter_args_list):
+    """
+    Parses the intermediate arguments into regular args and exclusions
+    """
     exclusions = {}
     new_inter_args = {}
     i = 0
@@ -94,32 +92,6 @@ def parse_inter_args(inter_args_list):
             error_mess = error_mess + "' - No '=' found."
             print_error(error_mess, True)
     return exclusions, new_inter_args
-
-def parse_args(args):
-    """
-    returns a dictionary of arguments meant for this script (isisToolExecutor.py)
-    and a list of ISIS tool name and arguments for that tool
-    """
-    # if no start keyword - use all command line args for the tool
-    if not contains_intermediary_args(args):
-        return {}, args
-
-    exclusions = []
-    intermediary_args = {}
-    tool_args = []
-    reading_tool_args = False
-    for arg in args:
-        if arg == tool_arg_start_keyword:
-            reading_tool_args = True
-        elif reading_tool_args:
-            tool_args.append(arg)
-        else:
-            split_arg = arg.split("=", 1)
-            if len(split_arg) == 2:
-                intermediary_args[split_arg[0]] = split_arg[1]
-            else:
-                print_error("Unable to parse arg '" + arg + "' - No '=' found.")
-    return intermediary_args, tool_args
 
 def get_input_filename(tool_args):
     """
@@ -176,21 +148,27 @@ def remove_empty_args(tool_args):
     return new_args
 
 def remove_exlusions(tool_args, exclusions):
+    """
+    Finds any arguments whose presence and value indicates that other arguments
+    shouldn't be used, and removes those arguments from the tool args.
+    """
     to_exclude = []
+    #look for exclusion flags, and if they exist add all the param names
+    #that get excluded to the to_exclude list
     for arg in tool_args:
         split_arg = arg.split("=", 1)
         if (split_arg[0] in exclusions and
                 split_arg[1] == exclusions[split_arg[0]]["value"]):
             to_exclude.extend(exclusions[split_arg[0]]["excludes"])
+    #create a new list without the args that are supposed to be excluded
     new_args = []
     if len(to_exclude) > 0:
-        print "!!!!!!!!!"
-        print to_exclude
-        print "!!!!!!!!!"
         for arg in tool_args:
             arg_key = arg.split("=", 1)[0]
             if not(arg_key in to_exclude):
                 new_args.append(arg)
+    else:
+        return tool_args
     return new_args
 
 def copy_input_to_output(input_filename, output_filename):
@@ -222,63 +200,27 @@ def rename_extra_extensions(file_path,
 
 def main():
     if len(sys.argv) < 2:
-        print_error("Error: Expected at least 2 arguments")
-        print_error("format:\npython %s <ISIS Tool> <ISIS Tool args>" % sys.argv[0])
-        print_error("or\npython %s <intermediate args> start <ISIS Tool> <ISIS Tool args>" % sys.argv[0], True)
-    else:
-        #parse the arguments to get the args for isisToolExecutor and the
-        #tool name and args for the actual ISIS tool
-        #then remove args whose value is 'None', empty, or in the exclude list.
-        intermediary_args, tool_args = parse_inter_args(sys.argv[1:])
-        tool_args = remove_args_with(tool_args, none_value)
-        tool_args = remove_empty_args(tool_args)
+        usage_str = "Expected at least 2 arguments\nformat:\npython"
+        usage_str += " %s <ISIS Tool> <ISIS Tool Args>\n" % sys.argv[0]
+        usage_str += "or\npython %s <intermediary script args> " % sys.argv[0]
+        usage_str += "start <ISIS Tool> <ISIS Tool args>"
+        print_error(usage_str, True)
 
-        #print the arguments the tool received for debug purposes
-        print "Intermediary Script Args Received:"
-        print repr(intermediary_args)
-        print "ISIS Tool Args Received:"
-        print repr(tool_args)
-
-        #Run the ISIS tool and wait for it to finish executing
-        sub_proc = subprocess.Popen(tool_args)
-        sub_proc.communicate()
-
-        input_path = get_input_filename(tool_args)
-
-        #if specified in the intermediary args - copy the input file to the
-        #output file supplied. 
-        #used for spiceinit which does not create an output file
-        if in_is_out_key in intermediary_args and intermediary_args[in_is_out_key] == in_is_out_value_true:
-            output_path = intermediary_args[output_filename_key]
-            copy_input_to_output(input_path, output_path)
-        else:
-            output_path = get_output_filename(tool_args)
-
-        #find files with and extensions appended to the filename and rename them
-        #to what Galaxy wanted the output path to be.
-        #
-        #this is here because many ISIS tools append an extension when the
-        #appropriate extension was not supplied in the output file name.
-        #example:
-        #ctxcal from='dataset_101.dat' to='dataset_102.dat'
-        #would result in a file named: 'dataset_102.dat.cub'
-        #and galaxy is expecting a file named 'dataset_102.dat' to exist
-        rename_extra_extensions(output_path)
-
-def test_main():
-    #split the args into args for this script and args for the isis tool
+    print "============================================================"
+    print "ISIS to GALAXY intermediary script - " + sys.argv[0]
+    print "============================================================"
+    #split the arguments by the 'start' keyword
     inter_args, tool_args = split_args(sys.argv[1:])
-    #grab the exclusions and regular args for this script
+    #parse the exclusions and intermediary args, than remove tool args as necessary
     exclusions, inter_args = parse_inter_args(inter_args)
-    #remove all 'None' valued, empty, and args that should be excluded
     tool_args = remove_exlusions(tool_args, exclusions)
     tool_args = remove_args_with(tool_args, none_value)
     tool_args = remove_empty_args(tool_args)
     print "Exclusions:"
     print repr(exclusions)
-    print "Inter Args:"
+    print "Intermediate Script Args:"
     print repr(inter_args)
-    print "Tool Args"
+    print "ISIS Tool Args"
     print repr(tool_args)
     
     #Run the ISIS tool and wait for it to finish executing
@@ -290,8 +232,8 @@ def test_main():
     #if specified in the intermediary args - copy the input file to the
     #output file supplied. 
     #used for spiceinit which does not create an output file
-    if in_is_out_key in intermediary_args and intermediary_args[in_is_out_key] == in_is_out_value_true:
-        output_path = intermediary_args[output_filename_key]
+    if in_is_out_key in inter_args and inter_args[in_is_out_key] == in_is_out_value_true:
+        output_path = inter_args[output_filename_key]
         copy_input_to_output(input_path, output_path)
     else:
         output_path = get_output_filename(tool_args)
@@ -308,4 +250,4 @@ def test_main():
     rename_extra_extensions(output_path)
 
 if __name__ == '__main__':
-    test_main()
+    main()
