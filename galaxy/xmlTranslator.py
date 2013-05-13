@@ -238,9 +238,15 @@ def convertInput(inputName, inputType, toolFile):
 		#and concatanate the types back together separated by 
  		#a ","
 		if len(temp) > 1:
-			temp1 = temp.pop()
-			temp1 = temp1[2:]
-			curType = temp1 + ',' + temp.pop()
+			curType = ""
+			while len(temp) > 0:
+				temp1 = temp.pop()
+				if (temp1[:1] == '*'):
+					temp1 = temp1[2:]
+				if (len(temp) == 0):
+					curType += temp1
+				else:
+					curType += temp1 + ','
 
 		#skip output, process all else
 		if curName == "TO":
@@ -411,7 +417,10 @@ def convertParams(inputFile, toolFile):
 					galaxyFile.write(paramLine)
 				#param type is string
 				elif (child.find("type").text.lower() == "string"): 
-					pDefault = child.find("default").find("item").text
+					if child.find("default"):
+						pDefault = child.find("default").find("item").text
+					if child.find("internalDefault"):
+						pDefault = child.find("internalDefault").text
 					#Check if list exists, if so, param is a radio button list
 					if child.find("list"):
 						paramLine = '\n\t\t<param name="' + pName + '" type="select" display="radio">'
@@ -508,4 +517,5 @@ def main():
 		toolToGalaxy()
 	except:
 		exit(43)
+
 main()

@@ -77,7 +77,7 @@ class QUB( Image ): ## returns true for testing purposes
         return check_image_type( filename, ['QUB'], image )
 	return True
 
-class QUB( Image ): ## returns true for testing purposes
+class qub( Image ): ## returns true for testing purposes
     def sniff(self, filename, image=None):
         return check_image_type( filename, ['qub'], image )
 	return True
@@ -113,6 +113,81 @@ class Imq( Image ): ## returns true for testing purposes
 	return True
 
 class Map( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class Vic( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class Tls( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class TLS( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class Tpc( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class TPC( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class Bsp( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class BSP( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class Ti( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class TI( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class Tsc( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class TSC( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class Bc( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class BC( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class Tf( Image ): ## returns true for testing purposes
+    def sniff(self, filename, image=None):
+        return check_image_type( filename, ['map'], image )
+	return True
+
+class TF( Image ): ## returns true for testing purposes
     def sniff(self, filename, image=None):
         return check_image_type( filename, ['map'], image )
 	return True

@@ -6,7 +6,15 @@
     	<datatype extension="imq" type="galaxy.datatypes.images:Imq" display_in_upload="true"/>
     	<datatype extension="map" type="galaxy.datatypes.images:Map" display_in_upload="true"/>
 	<datatype extension="cub" type="galaxy.datatypes.images:Cub" display_in_upload="true"/>
-	<datatype extension="QUB" type="galaxy.datatypes.images:Qub" display_in_upload="true"/>
+	<datatype extension="qub" type="galaxy.datatypes.images:Qub" display_in_upload="true"/>
+	<datatype extension="vic" type="galaxy.datatypes.images:Vic" display_in_upload="true"/>
+	<datatype extension="tls" type="galaxy.datatypes.images:Tls" display_in_upload="true"/>
+	<datatype extension="tpc" type="galaxy.datatypes.images:Tpc" display_in_upload="true"/>
+	<datatype extension="bsp" type="galaxy.datatypes.images:Bsp" display_in_upload="true"/>
+	<datatype extension="ti" type="galaxy.datatypes.images:Ti" display_in_upload="true"/>
+	<datatype extension="tsc" type="galaxy.datatypes.images:Tsc" display_in_upload="true"/>
+	<datatype extension="bc" type="galaxy.datatypes.images:Bc" display_in_upload="true"/>
+	<datatype extension="tf" type="galaxy.datatypes.images:Tf" display_in_upload="true"/>
     <!-- ISIS datatypes END -->
     <datatype extension="ab1" type="galaxy.datatypes.binary:Ab1" mimetype="application/octet-stream" display_in_upload="true"/>
     <datatype extension="afg" type="galaxy.datatypes.assembly:Amos" display_in_upload="false"/>
